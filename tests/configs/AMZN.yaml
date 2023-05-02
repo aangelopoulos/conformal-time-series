@@ -1,0 +1,87 @@
+real: True
+quantiles_given: False
+multiple_series: False 
+T_burnin: 100 
+alpha: 0.1
+sequences:
+  0:
+    dataset: "AMZN"
+    fit_every: 1
+    log: True
+    order:
+      - 1 
+      - 1
+      - 1
+    window_length: 300 
+    overwrite: True 
+methods:
+  trail:
+    weight_length: 50 
+  aci:
+    lrs:
+      - 0.1
+      - 0.01
+      - 0.001
+      - 0.0001
+      - 0.00001
+    window_length: 10000000 
+  pgd:
+    lrs:
+      - 0.0001
+      - 0.00001
+      - 0.000001
+      - 0.0000001
+      - 0.00000001
+    weight_length: 50 
+  pgd+sat:
+    lrs:
+      - 0.0001
+      - 0.00001
+      - 0.000001
+      - 0.0000001
+      - 0.00000001
+    weight_length: 50 
+    lmin: 0
+    lmax: 1.0
+  unconstrained:
+    lrs:
+      - 0.0001
+      - 0.00001
+      - 0.000001
+      - 0.0000001
+      - 0.00000001
+    weight_length: 50 
+    lmin: 0 
+    lmax: 1.0 
+  quantile:
+    lrs:
+      - 5 
+      - 2
+      - 1 
+      - 0.1 
+      - 0.01
+  pi:
+    lrs:
+      - 5 
+      - 2
+      - 1 
+      - 0.1 
+      - 0.01
+    c1: 1 
+    c2: 0.005
+  multiplicative:
+    lrs:
+      - 0.01
+      - 0.005
+      - 0.001
+      - 0.0001
+      - 0.00001
+    weight_length: 50 
+  mirror:
+    lrs:
+      - 0.01
+      - 0.005
+      - 0.001
+      - 0.0001
+      - 0.00001
+    weight_length: 50 
