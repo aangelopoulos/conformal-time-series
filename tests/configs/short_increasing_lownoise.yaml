@@ -22,35 +22,6 @@ methods:
       - 0.00001
     window_length: 10000000 
     T_burnin: 20 
-  pgd:
-    lrs:
-      - 0.0001
-      - 0.00001
-      - 0.000001
-      - 0.0000001
-      - 0.00000001
-    weight_length: 20 
-  pgd+sat:
-    lrs:
-      - 0.0001
-      - 0.00001
-      - 0.000001
-      - 0.0000001
-      - 0.00000001
-    weight_length: 20
-    lmin: 0
-    lmax: 1.0
-  unconstrained:
-    lrs:
-      - 0.0001
-      - 0.00001
-      - 0.000001
-      - 0.0000001
-      - 0.00000001
-    T_burnin: 20
-    weight_length: 20 
-    lmin: 0 
-    lmax: 1.0 
   quantile:
     lrs:
       - 0.2
@@ -67,19 +38,3 @@ methods:
       - 0.0001
     c1: 5 
     c2: 0.1 
-  multiplicative:
-    lrs:
-      - 0.01
-      - 0.005
-      - 0.001
-      - 0.0001
-      - 0.00001
-    weight_length: 20 
-  mirror:
-    lrs:
-      - 0.01
-      - 0.005
-      - 0.001
-      - 0.0001
-      - 0.00001
-    weight_length: 20 

@@ -2,7 +2,7 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
 import numpy as np
 import pandas as pd
-from core import standard_weighted_quantile, trailing_window, aci, projected_gradient_descent, projected_gradient_descent_saturation, unconstrained, multiplicative_weights, mirror_descent, online_quantile, pi, arima_quantile, pid_gluon
+from core import standard_weighted_quantile, trailing_window, aci, online_quantile, pi, arima_quantile, pid_gluon
 from core.synthetic_scores import generate_scores
 from core.model_scores import generate_forecast_scores
 from datasets import load_dataset
@@ -61,26 +61,16 @@ if __name__ == "__main__":
             continue
         fn = None
         if method == "trail":
-            results[method] = trailing_window(scores, args['alpha'], **(args['methods'][method]))
-            continue
+            fn = trailing_window
+            args['methods'][method]['lrs'] = [None]
         elif method == "aci":
             fn = aci
-        elif method == "pgd":
-            fn = projected_gradient_descent
-        elif method == "pgd+sat":
-            fn = projected_gradient_descent_saturation
-        elif method == "unconstrained":
-            fn = unconstrained
         elif method == "quantile":
             fn = online_quantile
         elif method == "pi":
             fn = pi
         elif method == "pid+gluon":
             fn = pid_gluon
-        elif method == "multiplicative":
-            fn = multiplicative_weights
-        elif method == "mirror":
-            fn = mirror_descent
         elif method == "arima+quantile":
             fn = arima_quantile
         lrs = args['methods'][method]['lrs']
