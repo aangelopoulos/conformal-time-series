@@ -13,7 +13,7 @@ sequences:
       - 1
       - 1
     window_length: 300 
-    overwrite: True
+    overwrite: False 
 methods:
   trail:
     weight_length: 50 

@@ -32,15 +32,20 @@ if __name__ == "__main__":
     for key in args['sequences'].keys():
         if real_data: # Real data
             data = load_dataset(args['sequences'][key]['dataset'])
+            y = data[data['item_id'] == 'y']['target'].to_numpy()
             if quantiles_given:
-                scores, forecasts = np.maximum((data['lower'] - data['actual']).to_numpy(), (data['actual'] - data['upper']).to_numpy()), [data['lower'].to_numpy(), data['middle'].to_numpy(), data['upper'].to_numpy()]
+                forecasts = data[data['item_id'] == 'forecast']['target']
+                lower = np.array([forecast[0] for forecast in forecasts])
+                middle = np.array([forecast[1] for forecast in forecasts])
+                upper = np.array([forecast[-1] for forecast in forecasts])
+                scores, forecasts = np.maximum(lower - y, y - upper), [lower, middle, upper]
                 scores_list += [scores]
                 forecasts_list += [forecasts]
-                data_list += [data['actual'].to_numpy()]
+                data_list += [data]
             else:
                 args['sequences'][key]['T_burnin'] = args['T_burnin']
                 data_savename = './datasets/' + args['sequences'][key]['dataset'] + '.npz'
-                scores, forecasts = generate_forecast_scores(data, data_savename, **args['sequences'][key])
+                scores, forecasts = generate_forecast_scores(y, data_savename, **args['sequences'][key])
                 scores_list += [scores]
                 forecasts_list += [forecasts]
                 data_list += [data]
@@ -85,8 +90,8 @@ if __name__ == "__main__":
     results["real_data"] = real_data
 
     if real_data:
-        results["forecasts"] = np.concatenate(forecasts_list).T
-        results["data"] = np.concatenate(data_list)
+        results["forecasts"] = forecasts_list[0]
+        results["data"] = data_list[0]
 
     # Save results
     with open(filename, 'wb') as handle:

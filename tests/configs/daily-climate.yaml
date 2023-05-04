@@ -9,10 +9,10 @@ sequences:
     fit_every: 1
     log: False
     order:
-      - 10
       - 1
-      - 10
-    window_length: 300 
+      - 1
+      - 1
+    window_length: 30 
     overwrite: False
 methods:
   trail:

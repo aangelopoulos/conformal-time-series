@@ -3,7 +3,7 @@ import copy
 from scipy.optimize import brentq
 from scipy.special import softmax
 from statsmodels.tsa.arima.model import ARIMA
-#from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
+from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
 from .conformal import standard_weighted_quantile
 from .utils import moving_average
 from tqdm import tqdm
@@ -26,6 +26,7 @@ def pinball_grad(data, theta, beta): # setting beta = 0.9 makes the loss 0 at th
 def trailing_window(
     scores,
     alpha,
+    lr, # Dummy argument
     weight_length,
     *args,
     **kwargs
@@ -200,8 +201,12 @@ def pid_gluon(
     for t in tqdm(range(T_test)):
         if t > T_burnin:
             # Use the AutoGluon library to forecast the next quantile
-            pdb.set_trace()
-            qs[t] = AutoGluonForecast(scores[t-window_length:t], datetimes[t-window_length:t], alpha=alpha, lr=lr, order=order, window_length=window_length, T_burnin=T_burnin)
+            train_data = TimeSeriesDataFrame.from_data_frame(
+                df,
+                id_column="item_id",
+                timestamp_column="timestamp"
+            )
+            qs[t] = TimeSeriesForecaster(scores[t-window_length:t], datetimes[t-window_length:t], alpha=alpha, lr=lr, order=order, window_length=window_length, T_burnin=T_burnin)
             covered = qs[t] + adj[t] >= scores[t]
             grads[t] = alpha if covered else -(1-alpha)
             # Gradient descent step

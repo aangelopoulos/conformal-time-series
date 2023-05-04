@@ -116,41 +116,44 @@ if __name__ == "__main__":
     if real_data:
         sns.set_theme(context="notebook", palette=cmap_lines, style="white", font_scale=4)
         sns.set_style({'axes.spines.right': False, 'axes.spines.top': False})
-        forecasts = forecasts[T_burnin+1:]
-        data = data[T_burnin+1:]
+        if quantiles_given:
+            forecasts = [forecast[T_burnin+1:] for forecast in forecasts]
+        else:
+            forecasts = forecasts[T_burnin+1:]
+        y = data[data['item_id'] == 'y']['target'].to_numpy().astype(float)[T_burnin+1:]
         fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
         # Find limits
         i = 1
-        data_clip_low = data.min() * 0.8
-        data_clip_high = data.max() * 1.2
+        y_clip_low = y.min() * 0.8
+        y_clip_high = y.max() * 1.2
         for key in results.keys():
             color = lighten_color(desaturate_color(cmap_lines[i-1], saturation=0.3), 0.5)
             j = 0
             for lr in results[key].keys():
-                quantiles = np.clip(results[key][lr]["q"][T_burnin+1:], data_clip_low, data_clip_high)
+                quantiles = np.clip(results[key][lr]["q"][T_burnin+1:], y_clip_low, y_clip_high)
                 if quantiles_given:
-                    sets = [forecasts[:,0] - quantiles, forecasts[:,-1] + quantiles]
+                    sets = [forecasts[0] - quantiles, forecasts[-1] + quantiles]
                 else:
                     sets = [forecasts - quantiles, forecasts + quantiles]
                 results[key][lr]["sets"] = sets
-                cvds = (sets[0] <= data) & (sets[1] >= data)
-                axs[j,i].plot(np.arange(data.shape[0]), data, color='black', alpha=0.2)
+                cvds = (sets[0] <= y) & (sets[1] >= y)
+                axs[j,i].plot(np.arange(y.shape[0]), y, color='black', alpha=0.2)
                 idx_miscovered = np.where(1-cvds)[0]
-                axs[j,i].fill_between(np.arange(data.shape[0]), sets[0], sets[1], color=color, alpha=transparency, label=f"lr={lr}")
-                axs[j,i].scatter(idx_miscovered, data[idx_miscovered], color='#FF000044', marker='o', s=10)
+                axs[j,i].fill_between(np.arange(y.shape[0]), sets[0], sets[1], color=color, alpha=transparency, label=f"lr={lr}")
+                axs[j,i].scatter(idx_miscovered, y[idx_miscovered], color='#FF000044', marker='o', s=10)
                 axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                 j = j + 1
             axs[0,i].set_title(key)
             i = i + 1
-        axs[0,0].plot(data,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
+        axs[0,0].plot(y,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
         if quantiles_given:
-            axs[1,0].plot(forecasts[:,1],linewidth=linewidth,alpha=transparency,color='green', label="forecast")
+            axs[1,0].plot(forecasts[1],linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         else:
             axs[1,0].plot(forecasts,linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         axs[1,0].legend()
-        axs[0,0].set_title("data")
-        plt.ylim([data_clip_low, data_clip_high])
+        axs[0,0].set_title("y")
+        plt.ylim([y_clip_low, y_clip_high])
         fig.supxlabel('time')
         fig.supylabel(r'$\mathcal{C}_t$')
         plt.tight_layout(pad=0.05)
@@ -182,7 +185,7 @@ if __name__ == "__main__":
                 local_metrics['75\% size'] = np.quantile(sets[1] - sets[0], 0.75)
                 local_metrics['90\% size'] = np.quantile(sets[1] - sets[0], 0.90) if local_metrics['fraction infinite'] < 0.1 else np.inf
                 local_metrics['10\% size'] = np.quantile(sets[1] - sets[0], 0.10)
-                local_metrics['interval score'] = ((sets[1] - sets[0]) + np.clip(np.maximum(2/alpha * (sets[0] - data), 2/alpha * (data - sets[1])),0,None)).mean()
+                local_metrics['interval score'] = ((sets[1] - sets[0]) + np.clip(np.maximum(2/alpha * (sets[0] - y), 2/alpha * (y - sets[1])),0,None)).mean()
             lr_index = f"{lr:0.1E}" if isinstance(lr,float) else lr
             index = pd.MultiIndex.from_tuples([(key, lr_index)], names=["method", "lr"])
             local_metrics = pd.DataFrame(local_metrics, index=index)
