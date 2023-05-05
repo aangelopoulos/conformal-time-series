@@ -11,6 +11,14 @@ def load_dataset(name):
         df = df.drop("Unnamed: 0", axis='columns')
         data = df.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
+    if name == "weekly-climate":
+        df = pd.read_csv('./datasets/daily-climate.csv')
+        df.rename({'date': 'timestamp', 'meantemp': 'y'}, axis='columns', inplace=True)
+        df = df.drop("Unnamed: 0", axis='columns')
+        df[['y', 'humidity', 'wind_speed', 'meanpressure']] = df[['y', 'humidity', 'wind_speed', 'meanpressure']].rolling(7).mean()
+        df = df[6::7]
+        data = df.melt(id_vars=['timestamp'], value_name='target')
+        data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
     if name == "ms-stock":
         df = pd.read_csv('./datasets/ms-stock.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')

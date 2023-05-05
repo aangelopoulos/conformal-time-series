@@ -1,18 +1,18 @@
 real: True
 quantiles_given: False
 multiple_series: False 
-T_burnin: 500 
+T_burnin: 52 
 alpha: 0.1
-seasonal_period: 365
+seasonal_period: 52 
 sequences:
   0:
-    dataset: "daily-climate"
-    fit_every: 10
+    dataset: "weekly-climate"
+    fit_every: 1
     log: False
     order:
+      - 1 
       - 0 
       - 0 
-      - 1
     window_length: 10 
     overwrite: True 
 methods:

@@ -285,8 +285,8 @@ def pid_gluon(
         score_df = pd.DataFrame({'timestamp': data[data.item_id == 'y'].timestamp, 'item_id': np.array(['score']*data[data.item_id == 'y'].shape[0]), 'target': scores}, columns=['timestamp', 'item_id', 'target'])
         data = data[data.item_id != 'forecast']
         data = pd.concat([data, score_df])
+        data.timestamp = pd.to_datetime(data.timestamp)
     data = data.fillna(0)
-    pdb.set_trace()
     data = data.astype({'target': 'float'})
     ignore_time_index = data.timestamp[:20].diff().min() != data.timestamp[:20].diff().max() # AutoGluon can't handle irregularly spaced data
     train_model = True
