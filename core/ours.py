@@ -1,8 +1,10 @@
 import numpy as np
+import pandas as pd
 import copy
 from scipy.optimize import brentq
 from scipy.special import softmax
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.statespace import ExponentialSmoothing
 from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
 from .conformal import standard_weighted_quantile
 from .utils import moving_average
@@ -171,7 +173,7 @@ def arima_quantile(
                 ARIMAModel = ARIMA(scores[t-window_length:t], order=order, enforce_stationarity=False, enforce_invertibility=False).fit(start_params=start_params)
             qs[t] = ARIMAModel.get_forecast(t).conf_int(alpha=2*alpha)[0,1] + adj[t]
             start_params = ARIMAModel.params
-            covered = qs[t] + adj[t] >= scores[t]
+            covered = qs[t] >= scores[t]
             grads[t] = alpha if covered else -(1-alpha)
             # Gradient descent step
             if t < T_test - 1:
@@ -181,16 +183,15 @@ def arima_quantile(
     results = {"method": "arima+quantile", "q" : qs, "grads": grads}
     return results
 
-def pid_gluon(
+def pid_seasonal(
     scores,
-    datetimes,
     alpha,
     lr,
-    order,
-    window_length,
+    data,
     T_burnin,
     c1,
     c2,
+    steps_ahead,
     *args,
     **kwargs
 ):
@@ -198,16 +199,95 @@ def pid_gluon(
     grads = np.zeros((T_test,))
     qs = np.zeros((T_test,))
     adj = np.zeros((T_test,))
+    data['timestamp'] = pd.to_datetime(data['timestamp'])
+    uq_timestamps = data['timestamp'].unique()
+    data = data.set_index('timestamp')
+    data = data[data.item_id == 'y']
+    data.drop('item_id', axis=1, inplace=True)
+    data['target'] = scores # KLUGE: We are forecasting scores now
+    curr_forecasts = None
     for t in tqdm(range(T_test)):
         if t > T_burnin:
-            # Use the AutoGluon library to forecast the next quantile
-            train_data = TimeSeriesDataFrame.from_data_frame(
-                df,
-                id_column="item_id",
-                timestamp_column="timestamp"
-            )
-            qs[t] = TimeSeriesForecaster(scores[t-window_length:t], datetimes[t-window_length:t], alpha=alpha, lr=lr, order=order, window_length=window_length, T_burnin=T_burnin)
-            covered = qs[t] + adj[t] >= scores[t]
+            curr_steps_ahead = min(t+steps_ahead, T_test) - t
+            curr_dates = uq_timestamps[t:t+curr_steps_ahead]
+            model = None
+            initial_level = 0
+            initial_trend = 0
+            initial_seasonal = 0
+            modulo = (t - T_burnin - 1) % steps_ahead
+            if modulo == 0:
+                # Use the statsmodels seasonal exponential smoothing to forecast the next steps_ahead quantiles
+                curr_data = data[data.index < curr_dates[0]]
+                model = ExponentialSmoothing(
+                    curr_data,
+                    trend=True,
+                    seasonal=365,
+                    initial_level = initial_level,
+                    initial_trend = initial_trend,
+                    initial_seasonal = initial_seasonal,
+                    initialization_method="known"
+                ).fit()
+                initial_level = model.level
+                initial_trend = model.trend
+                initial_seasonal = model.season
+                curr_forecasts = model.forecast(steps_ahead)
+            qs[t] = curr_forecasts[modulo] + adj[t]
+            covered = qs[t] >= scores[t]
+            grads[t] = alpha if covered else -(1-alpha)
+            # Gradient descent step
+            if t < T_test - 1:
+                adj[t+1] = adj[t] - lr * grads[t]
+        else:
+            qs[t+1] = scores[t]
+    results = {"method": "pid+seasonal", "q" : qs, "grads": grads}
+    return results
+
+def pid_gluon(
+    scores,
+    alpha,
+    lr,
+    data,
+    T_burnin,
+    c1,
+    c2,
+    steps_ahead,
+    *args,
+    **kwargs
+):
+    T_test = scores.shape[0]
+    grads = np.zeros((T_test,))
+    qs = np.zeros((T_test,))
+    adj = np.zeros((T_test,))
+    score_df = pd.DataFrame({'timestamp': data[data.item_id == 'y'].timestamp, 'item_id': np.array(['score']*data[data.item_id == 'y'].shape[0]), 'target': scores}, columns=['timestamp', 'item_id', 'target'])
+    data = pd.concat([data, score_df])
+    for t in tqdm(range(T_test)):
+        if t > T_burnin:
+            curr_steps_ahead = min(t+steps_ahead, T_test) - t
+            curr_dates = data.timestamp.unique()[t:t+curr_steps_ahead]
+            if (t - T_burnin - 1) % steps_ahead == 0:
+                # Use the AutoGluon library to forecast the next steps_ahead quantiles
+                curr_data = data[data.timestamp < curr_dates[0]]
+                train_data = TimeSeriesDataFrame.from_data_frame(
+                    curr_data,
+                    id_column="item_id",
+                    timestamp_column="timestamp"
+                )
+                predictor = TimeSeriesPredictor(
+                    prediction_length=curr_steps_ahead,
+                    path=None,
+                    target="target",
+                    eval_metric="sMAPE",
+                    verbosity=0
+                )
+                predictor.fit(
+                    train_data,
+                    presets="fast_training",
+                    #hyperparameters={
+                    #    "ETS": {"seasonal_period": 365},
+                    #}
+                )
+            qs[t] = predictor.predict(curr_data, random_seed=None)[str(1-alpha)]['score',curr_dates[0]] + adj[t]
+            covered = qs[t] >= scores[t]
             grads[t] = alpha if covered else -(1-alpha)
             # Gradient descent step
             if t < T_test - 1:

@@ -112,6 +112,29 @@ if __name__ == "__main__":
     plt.subplots_adjust(left=0.05, bottom=0.07)
     plt.savefig(plots_folder + "size.pdf")
 
+    # Size-score-corr!
+    fig, axs = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, sharey=True, figsize = (ncols*10.1, nrows*6.4))
+    # Make plots
+    low_clip = scores.min() * 0.9
+    high_clip = scores.max() * 1.1
+    i = 0
+    for key in results.keys():
+        color = cmap_lines[i]
+        j = 0
+        for lr in results[key].keys():
+            quantiles = np.clip(results[key][lr]["q"][T_burnin+1:], low_clip, high_clip)
+            sns.kdeplot(ax=axs[j,i],x=scores[T_burnin+1:], y=quantiles, color=color, fill=True, hue_norm=(0,1), alpha=transparency, label=f"lr={lr}")
+            axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
+            j = j + 1
+        axs[0,i].set_title(key)
+        i = i + 1
+    plt.ylim([low_clip, high_clip])
+    fig.supxlabel('score')
+    fig.supylabel(r'$\hat{q}$')
+    plt.tight_layout(pad=0.05)
+    plt.subplots_adjust(left=0.05, bottom=0.07)
+    plt.savefig(plots_folder + "corr.pdf")
+
     # Plot the actual sequence
     if real_data:
         sns.set_theme(context="notebook", palette=cmap_lines, style="white", font_scale=4)

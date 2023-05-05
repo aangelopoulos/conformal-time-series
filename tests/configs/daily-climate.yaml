@@ -1,7 +1,7 @@
 real: True
 quantiles_given: False
 multiple_series: False 
-T_burnin: 100 
+T_burnin: 366 
 alpha: 0.1
 sequences:
   0:
@@ -41,3 +41,15 @@ methods:
       - 0.001
     c1: 5 
     c2: 0.1 
+  pid+seasonal:
+    lrs:
+      - 0.0
+    c1: 5 
+    c2: 0.1 
+    steps_ahead: 5 
+  pid+gluon:
+    lrs:
+      - 0.0
+    c1: 5 
+    c2: 0.1 
+    steps_ahead: 5 

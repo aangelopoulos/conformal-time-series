@@ -9,8 +9,8 @@ def load_dataset(name):
         df = pd.read_csv('./datasets/daily-climate.csv')
         df.rename({'date': 'timestamp', 'meantemp': 'y'}, axis='columns', inplace=True)
         df = df.drop("Unnamed: 0", axis='columns')
-        df['item_id'] = 'y'
-        data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
+        data = df.melt(id_vars=['timestamp'], value_name='target')
+        data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
     if name == "ms-stock":
         df = pd.read_csv('./datasets/ms-stock.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')
@@ -67,5 +67,5 @@ def load_dataset(name):
     return data
 
 if __name__ == "__main__":
-    data = load_dataset("ms-stock")
+    data = load_dataset("daily-climate")
     pdb.set_trace()
