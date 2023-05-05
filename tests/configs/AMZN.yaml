@@ -3,6 +3,7 @@ quantiles_given: False
 multiple_series: False 
 T_burnin: 100 
 alpha: 0.1
+seasonal_period: 5 
 sequences:
   0:
     dataset: "AMZN"
@@ -41,3 +42,23 @@ methods:
       - 0.01
     c1: 1 
     c2: 0.005
+  pid+seasonal:
+    lrs:
+      - 5 
+      - 2
+      - 1 
+      - 0.1 
+      - 0.01
+    c1: 1 
+    c2: 0.005
+    steps_ahead: 1 
+  pid+gluon:
+    lrs:
+      - 5 
+      - 2
+      - 1 
+      - 0.1 
+      - 0.01
+    c1: 1 
+    c2: 0.005
+    steps_ahead: 1 

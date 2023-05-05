@@ -51,7 +51,7 @@ if __name__ == "__main__":
                 data_list += [data]
         else:
             scores_list += [generate_scores(**args['sequences'][key])]
-    scores = np.concatenate(scores_list)
+    scores = np.concatenate(scores_list).astype(float)
 
     # Try reading in results
     try:
@@ -83,7 +83,9 @@ if __name__ == "__main__":
         lrs = args['methods'][method]['lrs']
         kwargs = args['methods'][method]
         kwargs["T_burnin"] = args["T_burnin"]
-        kwargs["data"] = data
+        kwargs["data"] = data if real_data else None
+        kwargs["seasonal_period"] = args["seasonal_period"] if "seasonal_period" in args.keys() else None
+        kwargs["dataset_name"] = args['sequences'][key]['dataset']
         results[method] = { lr : fn(scores, args['alpha'], lr, **kwargs) for lr in lrs }
     results["scores"] = scores
     results["alpha"] = args['alpha']

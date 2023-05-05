@@ -17,6 +17,7 @@ def load_dataset(name):
         df.rename({'Date': 'timestamp'}, axis='columns', inplace=True)
         df['item_id'] = 'y'
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
+        data.drop("variable", axis='columns', inplace=True)
     if name == "AMZN":
         df = pd.read_csv('./datasets/djia.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')
@@ -67,5 +68,5 @@ def load_dataset(name):
     return data
 
 if __name__ == "__main__":
-    data = load_dataset("daily-climate")
+    data = load_dataset("elec2")
     pdb.set_trace()

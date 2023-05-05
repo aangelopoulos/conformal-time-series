@@ -1,8 +1,9 @@
 real: True
 quantiles_given: False
 multiple_series: False 
-T_burnin: 366 
+T_burnin: 500 
 alpha: 0.1
+seasonal_period: 365
 sequences:
   0:
     dataset: "daily-climate"
@@ -43,13 +44,21 @@ methods:
     c2: 0.1 
   pid+seasonal:
     lrs:
-      - 0.0
+      - 1 
+      - 0.2
+      - 0.05
+      - 0.01
+      - 0.001
     c1: 5 
     c2: 0.1 
-    steps_ahead: 5 
+    steps_ahead: 1 
   pid+gluon:
     lrs:
-      - 0.0
+      - 1 
+      - 0.2
+      - 0.05
+      - 0.01
+      - 0.001
     c1: 5 
     c2: 0.1 
-    steps_ahead: 5 
+    steps_ahead: 1 

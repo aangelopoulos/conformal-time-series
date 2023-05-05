@@ -10,6 +10,7 @@ sequences:
     end_point: 1 
     length: 10000
     sigma: 0.2
+    dataset: "linear-0-1-10000-0.2"
 methods:
   trail:
     weight_length: 1000
@@ -38,3 +39,13 @@ methods:
       - 0.0001
     c1: 5 
     c2: 0.1 
+  pid+seasonal:
+    lrs:
+      - 0.2
+      - 0.1
+      - 0.01
+      - 0.001
+      - 0.0001
+    c1: 5 
+    c2: 0.1 
+    steps_ahead: 1 

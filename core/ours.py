@@ -1,10 +1,11 @@
+import os
 import numpy as np
 import pandas as pd
 import copy
 from scipy.optimize import brentq
 from scipy.special import softmax
 from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.statespace import ExponentialSmoothing
+from statsmodels.tsa.api import ExponentialSmoothing
 from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
 from .conformal import standard_weighted_quantile
 from .utils import moving_average
@@ -198,14 +199,27 @@ def pid_seasonal(
     T_test = scores.shape[0]
     grads = np.zeros((T_test,))
     qs = np.zeros((T_test,))
+    forecasts = np.zeros((T_test,))
     adj = np.zeros((T_test,))
+    if data is None: # Data is synthetic
+        data = pd.DataFrame({'timestamp': np.arange(scores.shape[0]), 'item_id': 'y', 'target': scores})
     data['timestamp'] = pd.to_datetime(data['timestamp'])
     uq_timestamps = data['timestamp'].unique()
     data = data.set_index('timestamp')
     data = data[data.item_id == 'y']
     data.drop('item_id', axis=1, inplace=True)
     data['target'] = scores # KLUGE: We are forecasting scores now
-    curr_forecasts = None
+    data = data.astype({'target': 'float'})
+    seasonal_period = kwargs.get('seasonal_period')
+    train_model = True
+    try:
+        os.makedirs('./.cache/pid_seasonal/', exist_ok=True)
+        forecasts = np.load('./.cache/pid_seasonal/' + kwargs.get('dataset_name') + '.npy')
+        train_model = False
+    except:
+        pass
+    sum_errors = 0
+    I = 0
     for t in tqdm(range(T_test)):
         if t > T_burnin:
             curr_steps_ahead = min(t+steps_ahead, T_test) - t
@@ -213,15 +227,15 @@ def pid_seasonal(
             model = None
             initial_level = 0
             initial_trend = 0
-            initial_seasonal = 0
-            modulo = (t - T_burnin - 1) % steps_ahead
-            if modulo == 0:
+            initial_seasonal = None if seasonal_period is None else 0
+            if train_model and (t - T_burnin - 1) % steps_ahead == 0:
                 # Use the statsmodels seasonal exponential smoothing to forecast the next steps_ahead quantiles
                 curr_data = data[data.index < curr_dates[0]]
                 model = ExponentialSmoothing(
                     curr_data,
-                    trend=True,
-                    seasonal=365,
+                    seasonal_periods=seasonal_period,
+                    trend='add',
+                    seasonal=None if seasonal_period is None else 'add',
                     initial_level = initial_level,
                     initial_trend = initial_trend,
                     initial_seasonal = initial_seasonal,
@@ -229,10 +243,13 @@ def pid_seasonal(
                 ).fit()
                 initial_level = model.level
                 initial_trend = model.trend
-                initial_seasonal = model.season
-                curr_forecasts = model.forecast(steps_ahead)
-            qs[t] = curr_forecasts[modulo] + adj[t]
+                initial_seasonal = None if seasonal_period is None else model.season
+                simulations = model.simulate(curr_steps_ahead, repetitions=100).to_numpy()
+                forecasts[t:t+curr_steps_ahead] = np.quantile(simulations, 1-alpha, axis=1)
+            qs[t] = forecasts[t] + adj[t] + barrier_fn(I, t, c1, c2, T_burnin)
             covered = qs[t] >= scores[t]
+            sum_errors += 1-covered
+            I = sum_errors - (t-T_burnin)*alpha
             grads[t] = alpha if covered else -(1-alpha)
             # Gradient descent step
             if t < T_test - 1:
@@ -240,6 +257,8 @@ def pid_seasonal(
         else:
             qs[t+1] = scores[t]
     results = {"method": "pid+seasonal", "q" : qs, "grads": grads}
+    if train_model:
+        np.save('./.cache/pid_seasonal/' + kwargs.get('dataset_name') + '.npy', forecasts)
     return results
 
 def pid_gluon(
@@ -255,16 +274,35 @@ def pid_gluon(
     **kwargs
 ):
     T_test = scores.shape[0]
+    seasonal_period = kwargs.get('seasonal_period')
     grads = np.zeros((T_test,))
     qs = np.zeros((T_test,))
+    forecasts = np.zeros((T_test,))
     adj = np.zeros((T_test,))
-    score_df = pd.DataFrame({'timestamp': data[data.item_id == 'y'].timestamp, 'item_id': np.array(['score']*data[data.item_id == 'y'].shape[0]), 'target': scores}, columns=['timestamp', 'item_id', 'target'])
-    data = pd.concat([data, score_df])
+    if data is None: # Data is synthetic
+        data = pd.DataFrame({'timestamp': np.arange(scores.shape[0]), 'item_id': 'y', 'target': scores})
+    else:
+        score_df = pd.DataFrame({'timestamp': data[data.item_id == 'y'].timestamp, 'item_id': np.array(['score']*data[data.item_id == 'y'].shape[0]), 'target': scores}, columns=['timestamp', 'item_id', 'target'])
+        data = data[data.item_id != 'forecast']
+        data = pd.concat([data, score_df])
+    data = data.fillna(0)
+    pdb.set_trace()
+    data = data.astype({'target': 'float'})
+    ignore_time_index = data.timestamp[:20].diff().min() != data.timestamp[:20].diff().max() # AutoGluon can't handle irregularly spaced data
+    train_model = True
+    try:
+        os.makedirs('./.cache/pid_gluon/', exist_ok=True)
+        forecasts = np.load('./.cache/pid_gluon/' + kwargs.get('dataset_name') + '.npy')
+        train_model = False
+    except:
+        pass
+    sum_errors = 0
+    I = 0
     for t in tqdm(range(T_test)):
         if t > T_burnin:
             curr_steps_ahead = min(t+steps_ahead, T_test) - t
             curr_dates = data.timestamp.unique()[t:t+curr_steps_ahead]
-            if (t - T_burnin - 1) % steps_ahead == 0:
+            if train_model and (t - T_burnin - 1) % steps_ahead == 0:
                 # Use the AutoGluon library to forecast the next steps_ahead quantiles
                 curr_data = data[data.timestamp < curr_dates[0]]
                 train_data = TimeSeriesDataFrame.from_data_frame(
@@ -277,17 +315,24 @@ def pid_gluon(
                     path=None,
                     target="target",
                     eval_metric="sMAPE",
-                    verbosity=0
+                    verbosity=0,
+                    ignore_time_index=ignore_time_index
                 )
                 predictor.fit(
                     train_data,
                     presets="fast_training",
                     #hyperparameters={
-                    #    "ETS": {"seasonal_period": 365},
+                    #    "ETS": {"seasonal_period": seasonal_period},
                     #}
                 )
-            qs[t] = predictor.predict(curr_data, random_seed=None)[str(1-alpha)]['score',curr_dates[0]] + adj[t]
+                if ignore_time_index:
+                    forecasts[t:t+curr_steps_ahead] = predictor.predict(curr_data, random_seed=None)[str(1-alpha)]['score'].to_numpy()
+                else:
+                    forecasts[t:t+curr_steps_ahead] = np.array([predictor.predict(curr_data, random_seed=None)[str(1-alpha)]['score', date] for date in curr_dates])
+            qs[t] = forecasts[t] + adj[t] + barrier_fn(I, t, c1, c2, T_burnin)
             covered = qs[t] >= scores[t]
+            sum_errors += 1-covered
+            I = sum_errors - (t-T_burnin)*alpha
             grads[t] = alpha if covered else -(1-alpha)
             # Gradient descent step
             if t < T_test - 1:
@@ -295,4 +340,6 @@ def pid_gluon(
         else:
             qs[t+1] = scores[t]
     results = {"method": "pid+gluon", "q" : qs, "grads": grads}
+    if train_model:
+        np.save('./.cache/pid_gluon/' + kwargs.get('dataset_name') + '.npy', forecasts)
     return results
