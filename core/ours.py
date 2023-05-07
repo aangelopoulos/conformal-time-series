@@ -203,7 +203,8 @@ def pid_seasonal(
     adj = np.zeros((T_test,))
     if data is None: # Data is synthetic
         data = pd.DataFrame({'timestamp': np.arange(scores.shape[0]), 'item_id': 'y', 'target': scores})
-    data['timestamp'] = pd.to_datetime(data['timestamp'])
+    if data['timestamp'].dtype == str:
+        data['timestamp'] = pd.to_datetime(data['timestamp'])
     uq_timestamps = data['timestamp'].unique()
     data = data.set_index('timestamp')
     data = data[data.item_id == 'y']
@@ -239,7 +240,7 @@ def pid_seasonal(
                     initial_level = initial_level,
                     initial_trend = initial_trend,
                     initial_seasonal = initial_seasonal,
-                    initialization_method="known"
+                    initialization_method="known",
                 ).fit()
                 initial_level = model.level
                 initial_trend = model.trend
@@ -321,9 +322,9 @@ def pid_gluon(
                 predictor.fit(
                     train_data,
                     presets="fast_training",
-                    #hyperparameters={
-                    #    "ETS": {"seasonal_period": seasonal_period},
-                    #}
+                    hyperparameters={
+                        "ETS": {"seasonal_period": seasonal_period},
+                    }
                 )
                 if ignore_time_index:
                     forecasts[t:t+curr_steps_ahead] = predictor.predict(curr_data, random_seed=None)[str(1-alpha)]['score'].to_numpy()

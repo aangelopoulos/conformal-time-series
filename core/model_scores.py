@@ -36,11 +36,15 @@ def generate_forecast_scores(
         else:
             scores[t+1] = np.abs(forecasts[t] - data[t])
         if (t > kwargs["T_burnin"]):
-            if (arima_fit is None) or (t % kwargs["fit_every"] == 0):
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    arima_fit = ARIMA(data[max(t-kwargs['window_length'],0):t], order=kwargs['order'], enforce_stationarity=False, enforce_invertibility=False).fit(start_params=arima_fit.params if arima_fit is not None else None)
-            forecasts[t+1] = arima_fit.forecast()[0]
+            #if (arima_fit is None) or (t % kwargs["fit_every"] == 0):
+            #    with warnings.catch_warnings():
+            #        warnings.simplefilter("ignore")
+            #        arima_fit = ARIMA(data[max(t-kwargs['window_length'],0):t], order=kwargs['order'], enforce_stationarity=False, enforce_invertibility=False).fit(start_params=arima_fit.params if arima_fit is not None else None)
+            #forecasts[t+1] = arima_fit.forecast()[0]
+            if (t % kwargs["fit_every"] == 0):
+                forecasts[t+1] = data[t]
+            else:
+                forecasts[t+1] = forecasts[t]
         else:
             forecasts[t+1] = data[t]
     np.savez(savename, scores=scores, forecasts=forecasts)

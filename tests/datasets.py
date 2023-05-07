@@ -66,8 +66,10 @@ def load_dataset(name):
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
     if name == "elec2":
         df = pd.read_csv('./datasets/elec2.csv')
-        df = df[17480+338:] # There are some constant values at the beginning of this dataset
-        df.rename({'date': 'timestamp', 'transfer': 'y'}, axis='columns', inplace=True)
+        df['timestamp'] = pd.date_range(start='1996-5-7', end='1998-12-6 23:30:00', freq='30T', inclusive='both')
+        df['class'] = df['class'] == 'UP'
+        df.rename({'nswdemand': 'y'}, axis='columns', inplace=True)
+        df = df[:5000]
         data = df.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
     if name == "M4":
