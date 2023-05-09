@@ -2,7 +2,7 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
 import numpy as np
 import pandas as pd
-from core import standard_weighted_quantile, trailing_window, aci, online_quantile, pi, arima_quantile, pid_seasonal, pid_gluon
+from core import standard_weighted_quantile, trailing_window, aci, online_quantile, pi, pid, pid_ets, pid_gluon
 from core.synthetic_scores import generate_scores
 from core.model_scores import generate_forecast_scores
 from datasets import load_dataset
@@ -19,7 +19,8 @@ if __name__ == "__main__":
     args = yaml.safe_load(open(json_name))
     # Set up folder and filename
     foldername = './results/'
-    filename = foldername + json_name.split('.')[-2].split('/')[-1] + ".pkl"
+    configname = json_name.split('.')[-2].split('/')[-1]
+    filename = foldername + configname + ".pkl"
     os.makedirs(foldername, exist_ok=True)
     real_data = args['real']
     quantiles_given = args['quantiles_given']
@@ -44,7 +45,7 @@ if __name__ == "__main__":
                 data_list += [data]
             else:
                 args['sequences'][key]['T_burnin'] = args['T_burnin']
-                data_savename = './datasets/' + args['sequences'][key]['dataset'] + '.npz'
+                data_savename = './datasets/' + configname + '.npz'
                 scores, forecasts = generate_forecast_scores(y, data_savename, **args['sequences'][key])
                 scores_list += [scores]
                 forecasts_list += [forecasts]
@@ -74,18 +75,19 @@ if __name__ == "__main__":
             fn = online_quantile
         elif method == "pi":
             fn = pi
-        elif method == "pid+seasonal":
-            fn = pid_seasonal
+        elif method == "pid":
+            fn = pid
+        elif method == "pid+ets":
+            fn = pid_ets
         elif method == "pid+gluon":
             fn = pid_gluon
-        elif method == "arima+quantile":
-            fn = arima_quantile
         lrs = args['methods'][method]['lrs']
         kwargs = args['methods'][method]
         kwargs["T_burnin"] = args["T_burnin"]
         kwargs["data"] = data if real_data else None
         kwargs["seasonal_period"] = args["seasonal_period"] if "seasonal_period" in args.keys() else None
         kwargs["dataset_name"] = args['sequences'][key]['dataset']
+        kwargs["config_name"] = configname
         results[method] = { lr : fn(scores, args['alpha'], lr, **kwargs) for lr in lrs }
     results["scores"] = scores
     results["alpha"] = args['alpha']

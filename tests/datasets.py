@@ -67,11 +67,12 @@ def load_dataset(name):
     if name == "elec2":
         df = pd.read_csv('./datasets/elec2.csv')
         df['timestamp'] = pd.date_range(start='1996-5-7', end='1998-12-6 23:30:00', freq='30T', inclusive='both')
-        df['class'] = df['class'] == 'UP'
+        df['class'] = (df['class'] == 'UP').astype(float)
         df.rename({'nswdemand': 'y'}, axis='columns', inplace=True)
         df = df[:5000]
         data = df.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
+        data.astype({'target': 'float64'})
     if name == "M4":
         data = pd.read_csv("https://autogluon.s3.amazonaws.com/datasets/timeseries/m4_hourly_subset/train.csv")
     assert np.isin(['timestamp', 'item_id', 'target'], data.columns).all()

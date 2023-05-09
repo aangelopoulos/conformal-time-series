@@ -108,7 +108,7 @@ if __name__ == "__main__":
             j = j + 1
         axs[0,i].set_title(key)
         i = i + 1
-    axs[0,0].plot(scores[T_burnin+1:],linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
+    axs[0,0].plot(scores,linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
     axs[0,0].set_title("scores")
     plt.ylim([low_clip, high_clip])
     fig.supxlabel('time')
@@ -120,7 +120,7 @@ if __name__ == "__main__":
     # Size plots (zoomed in)!
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
     # Make plots
-    last = 150
+    last = 80
     i = 1
     low_clip = scores[-last:].min() * 0.9
     high_clip = scores[-last:].max() * 1.1
@@ -325,4 +325,4 @@ if __name__ == "__main__":
     with open(metrics_folder + "metrics.tex", "w") as text_file:
         text_file.write(metrics_str)
     # Compile latex
-    os.system("pdflatex -output-directory " + metrics_folder + " " + metrics_folder + "metrics.tex")
+    os.system("pdflatex -quiet -output-directory " + metrics_folder + " " + metrics_folder + "metrics.tex")

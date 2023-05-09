@@ -7,13 +7,13 @@ seasonal_period: 5
 sequences:
   0:
     dataset: "AMZN"
-    fit_every: 1
+    fit_every: 15 
     log: True
     order:
       - 1 
-      - 1
-      - 1
-    window_length: 300 
+      - 0
+      - 0 
+    window_length: 10 
     overwrite: False 
 methods:
   trail:
@@ -42,7 +42,7 @@ methods:
       - 0.01
     c1: 1 
     c2: 0.005
-  pid+seasonal:
+  pid:
     lrs:
       - 5 
       - 2
@@ -51,8 +51,8 @@ methods:
       - 0.01
     c1: 1 
     c2: 0.005
-    steps_ahead: 1 
-  pid+gluon:
+    Kd: 0.1 
+  pid+ets:
     lrs:
       - 5 
       - 2

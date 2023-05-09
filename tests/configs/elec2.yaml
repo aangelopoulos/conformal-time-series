@@ -10,9 +10,9 @@ sequences:
     fit_every: 48 
     log: False
     order:
+      - 1
+      - 0 
       - 0
-      - 0 
-      - 0 
     window_length: 10 
     overwrite: False
 methods:
@@ -42,7 +42,17 @@ methods:
       - 0.00001
     c1: 5
     c2: 0.1
-  pid+seasonal:
+  pid:
+    lrs:
+      - 0.05
+      - 0.01
+      - 0.001
+      - 0.0001
+      - 0.00001
+    c1: 5
+    c2: 0.1
+    Kd: 0.1
+  pid+ets:
     lrs:
       - 0.05
       - 0.01
@@ -52,13 +62,3 @@ methods:
     c1: 5 
     c2: 0.1 
     steps_ahead: 1 
-  pid+gluon:
-    lrs:
-      - 0.05
-      - 0.01
-      - 0.001
-      - 0.0001
-      - 0.00001
-    c1: 5 
-    c2: 0.1 
-    steps_ahead: 48 

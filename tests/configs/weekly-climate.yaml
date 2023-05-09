@@ -7,14 +7,14 @@ seasonal_period: 52
 sequences:
   0:
     dataset: "weekly-climate"
-    fit_every: 1
+    fit_every: 4 
     log: False
     order:
-      - 1 
-      - 0 
+      - 1
+      - 0
       - 0 
     window_length: 10 
-    overwrite: True 
+    overwrite: False 
 methods:
   trail:
     weight_length: 50 
@@ -42,7 +42,7 @@ methods:
       - 0.001
     c1: 5 
     c2: 0.1 
-  pid+seasonal:
+  pid:
     lrs:
       - 1 
       - 0.2
@@ -51,8 +51,8 @@ methods:
       - 0.001
     c1: 5 
     c2: 0.1 
-    steps_ahead: 1 
-  pid+gluon:
+    Kd: 0.1
+  pid+ets:
     lrs:
       - 1 
       - 0.2

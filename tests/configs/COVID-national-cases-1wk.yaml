@@ -34,7 +34,7 @@ methods:
       - 100 
     c1: 0.05 
     c2: 0.000005 
-  pid+seasonal:
+  pid:
     lrs:
       - 1000000 
       - 100000 
@@ -43,8 +43,8 @@ methods:
       - 100 
     c1: 0.05 
     c2: 0.000005 
-    steps_ahead: 1 
-  pid+gluon:
+    Kd: 0.1 
+  pid+ets:
     lrs:
       - 1000000 
       - 100000 
