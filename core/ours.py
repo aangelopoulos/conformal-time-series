@@ -5,6 +5,7 @@ import copy
 from scipy.optimize import brentq
 from scipy.special import softmax
 from statsmodels.tsa.arima.model import ARIMA
+from statsmodels.tsa.statespace.sarimax import SARIMAX
 from statsmodels.tsa.api import ExponentialSmoothing
 from autogluon.timeseries import TimeSeriesDataFrame, TimeSeriesPredictor
 from .conformal import standard_weighted_quantile
@@ -148,15 +149,16 @@ def pi(
             shats[t+1] = shats[t] + P
             qs[t+1] = shats[t+1] + barrier_fn(I, t, c1, c2, T_burnin)
             #print("t: ", t, "shat: ", shats[t+1], "qhat: ", qs[t+1])
-    results = {"method": "pid", "q" : qs, "grads": grads}
+    results = {"method": "pi", "q" : qs, "grads": grads}
     return results
 
-def arima_quantile(
+def pid(
     scores,
     alpha,
     lr,
-    order,
-    window_length,
+    c1,
+    c2,
+    Kd,
     T_burnin,
     *args,
     **kwargs
@@ -164,27 +166,29 @@ def arima_quantile(
     T_test = scores.shape[0]
     grads = np.zeros((T_test,))
     qs = np.zeros((T_test,))
-    adj = np.zeros((T_test,))
-    start_params = None
+    shats = np.zeros((T_test,))
+    sum_errors = 0
     for t in tqdm(range(T_test)):
+        # First, calculate the quantile in the current timestep
+        covered = qs[t] >= scores[t]
         if t > T_burnin:
-            # First, forecast the quantile in the current timestep
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                ARIMAModel = ARIMA(scores[t-window_length:t], order=order, enforce_stationarity=False, enforce_invertibility=False).fit(start_params=start_params)
-            qs[t] = ARIMAModel.get_forecast(t).conf_int(alpha=2*alpha)[0,1] + adj[t]
-            start_params = ARIMAModel.params
-            covered = qs[t] >= scores[t]
-            grads[t] = alpha if covered else -(1-alpha)
-            # Gradient descent step
-            if t < T_test - 1:
-                adj[t+1] = adj[t] - lr * grads[t]
+            sum_errors += 1-covered
+        grads[t] = alpha if covered else -(1-alpha)
+        # PI step
+        P = - lr * grads[t]
+        if t > T_burnin:
+            I = sum_errors - (t-T_burnin)*alpha
+            D = grads[t] - grads[t-1]
         else:
-            qs[t+1] = scores[t]
-    results = {"method": "arima+quantile", "q" : qs, "grads": grads}
+            I = 0
+            D = 0
+        if t < T_test - 1:
+            shats[t+1] = shats[t] + P + Kd * D
+            qs[t+1] = shats[t+1] + barrier_fn(I, t, c1, c2, T_burnin)
+    results = {"method": "pid", "q" : qs, "grads": grads}
     return results
 
-def pid_seasonal(
+def pid_ets(
     scores,
     alpha,
     lr,
@@ -214,8 +218,8 @@ def pid_seasonal(
     seasonal_period = kwargs.get('seasonal_period')
     train_model = True
     try:
-        os.makedirs('./.cache/pid_seasonal/', exist_ok=True)
-        forecasts = np.load('./.cache/pid_seasonal/' + kwargs.get('dataset_name') + '.npy')
+        os.makedirs('./.cache/pid_ets/', exist_ok=True)
+        forecasts = np.load('./.cache/pid_ets/' + kwargs.get('config_name') + '.npy')
         train_model = False
     except:
         pass
@@ -225,7 +229,6 @@ def pid_seasonal(
         if t > T_burnin:
             curr_steps_ahead = min(t+steps_ahead, T_test) - t
             curr_dates = uq_timestamps[t:t+curr_steps_ahead]
-            model = None
             initial_level = 0
             initial_trend = 0
             initial_seasonal = None if seasonal_period is None else 0
@@ -257,9 +260,9 @@ def pid_seasonal(
                 adj[t+1] = adj[t] - lr * grads[t]
         else:
             qs[t+1] = scores[t]
-    results = {"method": "pid+seasonal", "q" : qs, "grads": grads}
+    results = {"method": "pid+ets", "q" : qs, "grads": grads}
     if train_model:
-        np.save('./.cache/pid_seasonal/' + kwargs.get('dataset_name') + '.npy', forecasts)
+        np.save('./.cache/pid_ets/' + kwargs.get('dataset_name') + '.npy', forecasts)
     return results
 
 def pid_gluon(

@@ -27,6 +27,7 @@ def generate_forecast_scores(
     scores = np.zeros((T,))
     forecasts = np.zeros((T,))
     arima_fit = None
+    order = kwargs["order"] if "order" in kwargs else None
     if log:
         data = np.log(data)
     print("Generating scores and forecasts...")
@@ -35,19 +36,20 @@ def generate_forecast_scores(
             scores[t+1] = np.abs(np.exp(forecasts[t]) - np.exp(data[t]))
         else:
             scores[t+1] = np.abs(forecasts[t] - data[t])
-        if (t > kwargs["T_burnin"]):
-            #if (arima_fit is None) or (t % kwargs["fit_every"] == 0):
-            #    with warnings.catch_warnings():
-            #        warnings.simplefilter("ignore")
-            #        arima_fit = ARIMA(data[max(t-kwargs['window_length'],0):t], order=kwargs['order'], enforce_stationarity=False, enforce_invertibility=False).fit(start_params=arima_fit.params if arima_fit is not None else None)
-            #forecasts[t+1] = arima_fit.forecast()[0]
-            if (t % kwargs["fit_every"] == 0):
-                forecasts[t+1] = data[t]
-            else:
-                forecasts[t+1] = forecasts[t]
+        # Fit and predict with ARIMA
+        if order is not None:
+            if t > kwargs["T_burnin"]:
+                if (arima_fit is None) or (t % kwargs["fit_every"] == 0):
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        arima_fit = ARIMA(data[max(t-kwargs['window_length'],0):t], order=kwargs['order'], enforce_stationarity=False, enforce_invertibility=False).fit(start_params=arima_fit.params if arima_fit is not None else None)
+                    forecast_distance = min(kwargs["fit_every"], T - t - 1)
+                    forecasts[t+1:t+forecast_distance+1] = arima_fit.forecast(forecast_distance)
+        # Predict as piecewise constant
         else:
-            forecasts[t+1] = data[t]
-    np.savez(savename, scores=scores, forecasts=forecasts)
+            forecasts[t+1] = data[t - t % kwargs["fit_every"]]
+
+    np.savez(savename, scores=scores, forecasts=forecasts) if not log else np.savez(savename, scores=scores, forecasts=np.exp(forecasts))
     print("Finished generating scores and forecasts.")
     if log:
         return scores, np.exp(forecasts)
