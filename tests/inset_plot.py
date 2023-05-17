@@ -162,6 +162,7 @@ if __name__ == '__main__':
     quantiles1 = data[args.key1][args.lr1]['q'][1:]
     quantiles2 = data[args.key2][args.lr2]['q'][1:]
     forecasts = data['forecasts']
+    asymmetric = data['asymmetric']
     # if forecasts is a list, clip off the last element of each. otherwise, clip off the last element of the array
     forecasts = [f[:-1] for f in forecasts] if isinstance(forecasts, list) else forecasts[:-1]
     alpha = data['alpha']
@@ -171,8 +172,12 @@ if __name__ == '__main__':
         sets1 = [forecasts[0] - quantiles1, forecasts[-1] + quantiles1]
         sets2 = [forecasts[0] - quantiles2, forecasts[-1] + quantiles2]
     else:
-        sets1 = [forecasts - quantiles1, forecasts + quantiles1]
-        sets2 = [forecasts - quantiles2, forecasts + quantiles2]
+        if not asymmetric:
+            sets1 = [forecasts - quantiles1, forecasts + quantiles1]
+            sets2 = [forecasts - quantiles2, forecasts + quantiles2]
+        else:
+            sets1 = [forecasts - quantiles1, forecasts + quantiles1]
+            sets2 = [forecasts - quantiles2, forecasts + quantiles2]
 
     #covered1 = moving_average((scores <= quantiles1).astype(float))
     #covered2 = moving_average((scores <= quantiles2).astype(float))
