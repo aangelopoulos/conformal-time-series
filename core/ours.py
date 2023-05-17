@@ -262,7 +262,7 @@ def pid_ets(
             qs[t+1] = scores[t]
     results = {"method": "pid+ets", "q" : qs, "grads": grads}
     if train_model:
-        np.save('./.cache/pid_ets/' + kwargs.get('dataset_name') + '.npy', forecasts)
+        np.save('./.cache/pid_ets/' + kwargs.get('config_name') + '.npy', forecasts)
     return results
 
 def pid_gluon(

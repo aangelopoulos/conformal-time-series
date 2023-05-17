@@ -1,7 +1,7 @@
 real: True
 quantiles_given: False
 multiple_series: False 
-T_burnin: 1000 
+T_burnin: 100 
 alpha: 0.1
 seasonal_period: 48
 sequences:
@@ -10,10 +10,10 @@ sequences:
     fit_every: 48 
     log: False
     order:
-      - 1
+      - 3 
       - 0 
       - 0
-    window_length: 10 
+    window_length: 20 
     overwrite: False
 methods:
   trail:

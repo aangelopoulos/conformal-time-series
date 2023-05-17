@@ -69,7 +69,7 @@ def load_dataset(name):
         df['timestamp'] = pd.date_range(start='1996-5-7', end='1998-12-6 23:30:00', freq='30T', inclusive='both')
         df['class'] = (df['class'] == 'UP').astype(float)
         df.rename({'nswdemand': 'y'}, axis='columns', inplace=True)
-        df = df[:5000]
+        df = df[:2000]
         data = df.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
         data.astype({'target': 'float64'})
