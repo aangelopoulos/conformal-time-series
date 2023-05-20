@@ -2,7 +2,7 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
 import numpy as np
 import pandas as pd
-from core import standard_weighted_quantile, trailing_window, aci, online_quantile, pi, pid, pid_ets, pid_gluon
+from core import standard_weighted_quantile, trailing_window, aci, quantile, quantile_integrator_log, quantile_integrator_log_scorecaster
 from core.synthetic_scores import generate_scores
 from core.model_scores import generate_forecast_scores
 from datasets import load_dataset
@@ -67,21 +67,17 @@ if __name__ == "__main__":
         if (method in results.keys()) and (method not in overwrite):
             continue
         fn = None
-        if method == "trail":
+        if method == "Trail":
             fn = trailing_window
             args['methods'][method]['lrs'] = [None]
-        elif method == "aci":
+        elif method == "ACI":
             fn = aci
-        elif method == "quantile":
-            fn = online_quantile
-        elif method == "pi":
-            fn = pi
-        elif method == "pid":
-            fn = pid
-        elif method == "pid+ets":
-            fn = pid_ets
-        elif method == "pid+gluon":
-            fn = pid_gluon
+        elif method == "Quantile":
+            fn = quantile
+        elif method == "Quantile+Integrator (log)":
+            fn = quantile_integrator_log
+        elif method == "Quantile+Integrator (log)+Scorecaster":
+            fn = quantile_integrator_log_scorecaster
         lrs = args['methods'][method]['lrs']
         kwargs = args['methods'][method]
         kwargs["T_burnin"] = args["T_burnin"]
