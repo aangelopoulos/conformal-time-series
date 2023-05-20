@@ -19,6 +19,7 @@ def load_dataset(name):
         df = df[6::7]
         data = df.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
+        pdb.set_trace()
     if name == "ms-stock":
         df = pd.read_csv('./datasets/ms-stock.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')
@@ -26,6 +27,7 @@ def load_dataset(name):
         df['item_id'] = 'y'
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
         data.drop("variable", axis='columns', inplace=True)
+        pdb.set_trace()
     if name == "AMZN":
         df = pd.read_csv('./datasets/djia.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')

@@ -9,6 +9,7 @@ from tqdm import tqdm
 """
 def generate_forecast_scores(
     data,
+    asymmetric,
     savename,
     overwrite,
     log,
@@ -33,9 +34,15 @@ def generate_forecast_scores(
     print("Generating scores and forecasts...")
     for t in tqdm(range(T-1)):
         if log:
-            scores[t+1] = np.abs(np.exp(forecasts[t]) - np.exp(data[t]))
+            if not asymmetric:
+                scores[t+1] = np.abs(np.exp(forecasts[t]) - np.exp(data[t]))
+            else:
+                scores[t+1] = np.exp(forecasts[t]) - np.exp(data[t])
         else:
-            scores[t+1] = np.abs(forecasts[t] - data[t])
+            if not asymmetric:
+                scores[t+1] = np.abs(forecasts[t] - data[t])
+            else:
+                scores[t+1] = forecasts[t] - data[t]
         # Fit and predict with ARIMA
         if order is not None:
             if t > kwargs["T_burnin"]:
