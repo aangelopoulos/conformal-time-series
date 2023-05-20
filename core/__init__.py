@@ -1,2 +1,2 @@
-from .conformal import standard_weighted_quantile
-from .ours import *
+from .quantile import standard_weighted_quantile
+from .methods import *

@@ -1,7 +1,7 @@
 import os, sys, inspect
 from itertools import groupby
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from core.utils import plot_coverage_size, plot_sets, plot_vertical_spread, moving_average
+from .utils import plot_coverage_size, plot_sets, plot_vertical_spread, moving_average
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
