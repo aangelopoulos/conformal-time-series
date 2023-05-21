@@ -25,7 +25,7 @@ if __name__ == "__main__":
     real_data = args['real']
     quantiles_given = args['quantiles_given']
     multiple_series = args['multiple_series']
-    asymmetric = args['asymmetric'] if 'asymmetric' in args.keys() else False
+    asymmetric = args['asymmetric']
 
     # Compute scores
     scores_list = []

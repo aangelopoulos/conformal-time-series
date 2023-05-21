@@ -3,14 +3,15 @@ T_burnin: 10
 alpha: 0.2
 quantiles_given: True 
 multiple_series: False 
+asymmetric: False
 sequences:
   0:
     dataset: "COVID-national-cases-1wk"
     log: False
 methods:
-  trail:
+  Trail:
     weight_length: 10 
-  aci:
+  ACI:
     lrs:
       - 0.1
       - 0.01
@@ -18,39 +19,29 @@ methods:
       - 0.0001
       - 0.00001
     window_length: 100000 
-  quantile:
+  Quantile:
     lrs:
       - 1000000 
       - 100000 
       - 10000 
       - 1000 
       - 100 
-  pi:
+  Quantile+Integrator (log):
     lrs:
       - 1000000 
       - 100000 
       - 10000 
       - 1000 
       - 100 
-    c1: 0.05 
-    c2: 0.000005 
-  pid:
+    Csat: 0.05 
+    KI: 200000 
+  Quantile+Integrator (log)+Scorecaster:
     lrs:
       - 1000000 
       - 100000 
       - 10000 
       - 1000 
       - 100 
-    c1: 0.05 
-    c2: 0.000005 
-    Kd: 0.1 
-  pid+ets:
-    lrs:
-      - 1000000 
-      - 100000 
-      - 10000 
-      - 1000 
-      - 100 
-    c1: 0.05 
-    c2: 0.000005 
+    Csat: 0.05 
+    KI: 200000 
     steps_ahead: 1 

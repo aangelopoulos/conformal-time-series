@@ -3,6 +3,7 @@ quantiles_given: False
 multiple_series: False 
 T_burnin: 1000
 alpha: 0.1
+asymmetric: False
 sequences:
   0:
     category: "linear"
@@ -37,9 +38,9 @@ sequences:
     start_point: 0.5 
     dataset: "autoregressive-0-0-0.9999-0.1-1000-0.5"
 methods:
-  trail:
+  Trail:
     weight_length: 1000
-  aci:
+  ACI:
     lrs:
       - 0.1
       - 0.01
@@ -48,39 +49,29 @@ methods:
       - 0.00001
     window_length: 10000000 
     T_burnin: 1000
-  quantile:
+  Quantile:
     lrs:
       - 0.2
       - 0.1
       - 0.01
       - 0.001
       - 0.0001
-  pi:
+  Quantile+Integrator (log):
     lrs:
       - 0.2
       - 0.1
       - 0.01
       - 0.001
       - 0.0001
-    c1: 5 
-    c2: 0.1 
-  pid:
+    Csat: 5 
+    KI: 10 
+  Quantile+Integrator (log)+Scorecaster:
     lrs:
       - 0.2
       - 0.1
       - 0.01
       - 0.001
       - 0.0001
-    c1: 5 
-    c2: 0.1 
-    Kd: 0.1
-  pid+ets:
-    lrs:
-      - 0.2
-      - 0.1
-      - 0.01
-      - 0.001
-      - 0.0001
-    c1: 5 
-    c2: 0.1 
+    Csat: 5 
+    KI: 10 
     steps_ahead: 1 

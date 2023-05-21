@@ -1,19 +1,14 @@
 import os, sys, inspect
 from itertools import groupby
-sys.path.insert(1, os.path.join(sys.path[0], '../'))
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-from plotting_utils import *
 import pickle as pkl
 import seaborn as sns
 import pdb
-
-def moving_average(x, window=50):
-    norm_factor = window / np.convolve( np.ones_like(x), np.ones(window), 'same' ) # Deal with edge effects
-    return norm_factor * (np.convolve(x, np.ones(window), 'same') / window)
+from plotting_utils import *
 
 if __name__ == "__main__":
     # Open file
@@ -69,6 +64,7 @@ if __name__ == "__main__":
     for key in results.keys():
         coverages[key] = { lr : (results[key][lr]["q"][T_burnin+1:] >= scores[T_burnin+1:]).astype(int).mean() for lr in list(results[key].keys()) }
     print(coverages)
+
     # For diagnostic purposes, store the indexes of the miscoverages
     miscoverage_indexes = {}
     for key in results.keys():
@@ -330,4 +326,4 @@ if __name__ == "__main__":
     with open(metrics_folder + "metrics.tex", "w") as text_file:
         text_file.write(metrics_str)
     # Compile latex
-    os.system("pdflatex -quiet -output-directory " + metrics_folder + " " + metrics_folder + "metrics.tex")
+    os.system("pdflatex -output-directory " + metrics_folder + " " + metrics_folder + "metrics.tex > /dev/null")

@@ -19,7 +19,6 @@ def load_dataset(name):
         df = df[6::7]
         data = df.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
-        pdb.set_trace()
     if name == "ms-stock":
         df = pd.read_csv('./datasets/ms-stock.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')
@@ -27,7 +26,6 @@ def load_dataset(name):
         df['item_id'] = 'y'
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
         data.drop("variable", axis='columns', inplace=True)
-        pdb.set_trace()
     if name == "AMZN":
         df = pd.read_csv('./datasets/djia.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')
@@ -35,6 +33,7 @@ def load_dataset(name):
         df.replace({'item_id': {'AMZN': 'y'}}, inplace=True)
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
         data.drop("variable", axis='columns', inplace=True)
+        data = data.interpolate()
     if name == "GOOGL":
         df = pd.read_csv('./datasets/djia.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')
@@ -42,6 +41,7 @@ def load_dataset(name):
         df.replace({'item_id': {'GOOGL': 'y'}}, inplace=True)
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
         data.drop("variable", axis='columns', inplace=True)
+        data = data.interpolate()
     if name == "COVID-national-cases-1wk":
         cases_data = pd.read_csv('./datasets/cases.csv')
         cases_data = cases_data[(cases_data.forecaster == 'COVIDhub-4_week_ensemble')][['actual', 'target_end_date']]
@@ -81,5 +81,4 @@ def load_dataset(name):
     return data
 
 if __name__ == "__main__":
-    data = load_dataset("elec2")
-    pdb.set_trace()
+    data = load_dataset("AMZN")

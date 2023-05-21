@@ -1,20 +1,21 @@
 real: False
 quantiles_given: False
 multiple_series: False 
-T_burnin: 1000
+T_burnin: 100
 alpha: 0.1
+asymmetric: False
 sequences:
   0:
     category: "linear"
     start_point: 0
     end_point: 1 
-    length: 10000
+    length: 1000
     sigma: 0.01
-    dataset: "linear-0-1-10000-0.01"
+    dataset: "linear-0-1-1000-0.01"
 methods:
-  trail:
+  Trail:
     weight_length: 1000
-  aci:
+  ACI:
     lrs:
       - 0.1
       - 0.01
@@ -22,40 +23,29 @@ methods:
       - 0.0001
       - 0.00001
     window_length: 10000000 
-    T_burnin: 1000
-  quantile:
+  Quantile:
     lrs:
       - 0.2
       - 0.1
       - 0.01
       - 0.001
       - 0.0001
-  pi:
+  Quantile+Integrator (log):
     lrs:
       - 0.2
       - 0.1
       - 0.01
       - 0.001
       - 0.0001
-    c1: 5 
-    c2: 0.1 
-  pid:
+    Csat: 5 
+    KI: 10 
+  Quantile+Integrator (log)+Scorecaster:
     lrs:
       - 0.2
       - 0.1
       - 0.01
       - 0.001
       - 0.0001
-    c1: 5 
-    c2: 0.1 
-    Kd: 0.1
-  pid+ets:
-    lrs:
-      - 0.2
-      - 0.1
-      - 0.01
-      - 0.001
-      - 0.0001
-    c1: 5 
-    c2: 0.1 
-    steps_ahead: 1 
+    Csat: 5 
+    KI: 10 
+    steps_ahead: 1

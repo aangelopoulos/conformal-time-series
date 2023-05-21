@@ -1,24 +1,25 @@
 real: True
 quantiles_given: False
 multiple_series: False 
-T_burnin: 1000 
+T_burnin: 100 
 alpha: 0.1
 seasonal_period: 48
+asymmetric: False
 sequences:
   0:
     dataset: "elec2"
     fit_every: 48 
     log: False
     order:
-      - 1
+      - 3 
       - 0 
       - 0
-    window_length: 10 
+    window_length: 20 
     overwrite: False
 methods:
-  trail:
+  Trail:
     weight_length: 50 
-  aci:
+  ACI:
     lrs:
       - 0.1
       - 0.01
@@ -26,39 +27,29 @@ methods:
       - 0.0001
       - 0.00001
     window_length: 10000000 
-  quantile:
+  Quantile:
     lrs:
       - 0.5
       - 0.05
       - 0.01
       - 0.001
       - 0.0001
-  pi:
+  Quantile+Integrator (log):
     lrs:
       - 0.5
       - 0.05
       - 0.01
       - 0.001
       - 0.0001
-    c1: 0.1 
-    c2: 0.5
-  pid:
+    Csat: 5 
+    KI: 2 
+  Quantile+Integrator (log)+Scorecaster:
     lrs:
       - 0.5 
       - 0.05
       - 0.01
       - 0.001
       - 0.0001
-    c1: 5
-    c2: 0.1
-    Kd: 0.1
-  pid+ets:
-    lrs:
-      - 0.5
-      - 0.05
-      - 0.01
-      - 0.001
-      - 0.0001
-    c1: 0.1 
-    c2: 0.5
+    Csat: 5
+    KI: 2 
     steps_ahead: 1 
