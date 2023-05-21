@@ -1,0 +1,50 @@
+real: False
+quantiles_given: False
+multiple_series: False 
+T_burnin: 1000
+alpha: 0.1
+sequences:
+  0:
+    category: "linear"
+    start_point: 0.5
+    end_point: 0.5 
+    length: 1000
+    sigma: 0.1
+    dataset: "linear-0.5-0.5-1000-0.1"
+methods:
+  trail:
+    weight_length: 100
+  aci:
+    lrs:
+      - 0.1
+      - 0.01
+      - 0.001
+      - 0.0001
+      - 0.00001
+    window_length: 10000000 
+  quantile:
+    lrs:
+      - 0.2
+      - 0.1
+      - 0.01
+      - 0.001
+      - 0.0001
+  quantile_integrator_log:
+    lrs:
+      - 0.2
+      - 0.1
+      - 0.01
+      - 0.001
+      - 0.0001
+    Csat: 5 
+    KI: 10 
+  quantile_integrator_log_scorecaster:
+    lrs:
+      - 0.2
+      - 0.1
+      - 0.01
+      - 0.001
+      - 0.0001
+    Csat: 5 
+    KI: 10 
+    steps_ahead: 1 

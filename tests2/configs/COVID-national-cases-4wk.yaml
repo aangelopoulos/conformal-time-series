@@ -1,0 +1,47 @@
+real: True
+quantiles_given: True 
+multiple_series: False 
+T_burnin: 10 
+alpha: 0.2
+asymmetric: False
+sequences:
+  0:
+    dataset: "COVID-national-cases-4wk"
+    log: False
+methods:
+  trail:
+    weight_length: 10 
+  aci:
+    lrs:
+      - 0.1
+      - 0.01
+      - 0.001
+      - 0.0001
+      - 0.00001
+    window_length: 100000 
+  quantile:
+    lrs:
+      - 1000000 
+      - 500000
+      - 100000 
+      - 50000 
+      - 10000 
+  quantile_integrator_log:
+    lrs:
+      - 1000000 
+      - 500000
+      - 100000 
+      - 50000 
+      - 10000 
+    Csat: 0.72 
+    KI: 200000 
+  quantile_integrator_log_scorecaster:
+    lrs:
+      - 1000000 
+      - 100000 
+      - 10000 
+      - 1000 
+      - 100 
+    Csat: 0.72 
+    KI: 200000 
+    steps_ahead: 1 
