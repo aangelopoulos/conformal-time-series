@@ -1,5 +1,5 @@
 real: True
-Quantiles_given: False
+quantiles_given: False
 multiple_series: False 
 T_burnin: 500 
 alpha: 0.1
@@ -34,7 +34,7 @@ methods:
       - 0.05
       - 0.01
       - 0.001
-  Quantile_integrator_log:
+  Quantile+Integrator (log):
     lrs:
       - 1 
       - 0.2
@@ -43,7 +43,7 @@ methods:
       - 0.001
     Csat: 5 
     KI: 10 
-  Quantile_integrator_log_scorecaster:
+  Quantile+Integrator (log)+Scorecaster:
     lrs:
       - 1 
       - 0.2

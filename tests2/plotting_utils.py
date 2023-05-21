@@ -1,7 +1,6 @@
 import os, sys, inspect
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
 from itertools import groupby
-from core.utils import moving_average
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -109,3 +108,30 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, sets,
             cvds = (time_series[0][window_start:window_end] <= y[window_start:window_end]) & (time_series[1][window_start:window_end] >= y[window_start:window_end])
             axins.fill_between(np.arange(y.shape[0])[window_start:window_end], np.clip(time_series[0][window_start:window_end], minval_axins, maxval_axins), np.clip(time_series[1][window_start:window_end], minval_axins, maxval_axins), color=color)
             axins.plot(np.arange(y.shape[0])[window_start:window_end], y[window_start:window_end], color='black', alpha=0.3, linewidth=1)
+
+        if hline is not None:
+            axins.axhline(hline, color='#888888', linestyle='--', linewidth=1)
+
+        box_color = "#dcd9d9"
+        for axis in ['top','bottom','left','right']:
+            axins.spines[axis].set_linewidth(2)
+            axins.spines[axis].set_color(box_color)
+
+        # Draw a box of the region of the inset axes in the parent axes and
+        # connecting lines between the box and the inset axes area
+        mark_inset(ax, axins, loc1=1, loc2=2, fc="none", ec=box_color, lw=2)
+
+        # Apply auto ticks on the inset
+        axins.xaxis.set_visible(True)
+        axins.yaxis.set_visible(True)
+
+        axins.set_xticklabels([])
+        axins.set_xticks([])
+        axins.set_yticklabels([])
+        axins.set_yticks([])
+
+        all_axins += [axins]
+
+    # Set ymin and ymax for insets
+    for axin in all_axins:
+        axin.set_ylim(minval_axins-0.1*np.abs(minval_axins), maxval_axins + 0.1*np.abs(maxval_axins))

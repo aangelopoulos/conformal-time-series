@@ -160,14 +160,14 @@ def quantile_integrator_log_scorecaster(
     adj = np.zeros((T_test,))
     if data is None: # Data is synthetic
         data = pd.DataFrame({'timestamp': np.arange(scores.shape[0]), 'item_id': 'y', 'target': scores})
-    if data['timestamp'].dtype == str:
+    if (data['timestamp'].dtype == str):
         data['timestamp'] = pd.to_datetime(data['timestamp'])
     uq_timestamps = data['timestamp'].unique()
-    data = data.set_index('timestamp')
-    data = data[data.item_id == 'y']
+    data = data[data.item_id == 'y'].copy()
     data.drop('item_id', axis=1, inplace=True)
     data['target'] = scores # KLUGE: We are forecasting scores now
     data = data.astype({'target': 'float'})
+    data = data.set_index('timestamp')
     seasonal_period = kwargs.get('seasonal_period')
     train_model = True
     try:
@@ -188,21 +188,26 @@ def quantile_integrator_log_scorecaster(
             if train_model and (t - T_burnin - 1) % steps_ahead == 0:
                 # Use the statsmodels seasonal exponential smoothing to forecast the next steps_ahead quantiles
                 curr_data = data[data.index < curr_dates[0]]
-                model = ExponentialSmoothing(
-                    curr_data,
-                    seasonal_periods=seasonal_period,
-                    trend='add',
-                    seasonal=None if seasonal_period is None else 'add',
-                    initial_level = initial_level,
-                    initial_trend = initial_trend,
-                    initial_seasonal = initial_seasonal,
-                    initialization_method="known",
-                ).fit()
-                initial_level = model.level
-                initial_trend = model.trend
-                initial_seasonal = None if seasonal_period is None else model.season
-                simulations = model.simulate(curr_steps_ahead, repetitions=100).to_numpy()
-                forecasts[t:t+curr_steps_ahead] = np.quantile(simulations, 1-alpha, axis=1)
+                # Ignore ValueWarnings
+                with warnings.catch_warnings():
+                    warnings.simplefilter("ignore")
+                    model = ExponentialSmoothing(
+                        curr_data,
+                        seasonal_periods=seasonal_period,
+                        trend='add',
+                        seasonal=None if seasonal_period is None else 'add',
+                        initial_level = initial_level,
+                        initial_trend = initial_trend,
+                        initial_seasonal = initial_seasonal,
+                        initialization_method="known",
+                    ).fit()
+                    initial_level = np.nan_to_num(model.level)
+                    initial_trend = np.nan_to_num(model.trend)
+                    initial_seasonal = None if seasonal_period is None else np.nan_to_num(model.season)
+                    simulations = model.simulate(curr_steps_ahead, repetitions=100).to_numpy()
+                    next_forecasts = np.nan_to_num(np.quantile(simulations, 1-alpha, axis=1), forecasts[t-1])
+                    #print(initial_level, initial_trend, initial_seasonal, next_forecasts)
+                    forecasts[t:t+curr_steps_ahead] = next_forecasts
             qs[t] = forecasts[t] + adj[t] + saturation_fn_log(I, t, Csat, KI, T_burnin)
             covered = qs[t] >= scores[t]
             sum_errors += 1-covered

@@ -1,8 +1,9 @@
 real: False
-Quantiles_given: False
+quantiles_given: False
 multiple_series: False 
-T_burnin: 1000
+T_burnin: 100
 alpha: 0.1
+asymmetric: False
 sequences:
   0:
     category: "linear"
@@ -29,7 +30,7 @@ methods:
       - 0.01
       - 0.001
       - 0.0001
-  Quantile_integrator_log:
+  Quantile+Integrator (log):
     lrs:
       - 0.2
       - 0.1
@@ -38,7 +39,7 @@ methods:
       - 0.0001
     Csat: 5 
     KI: 10 
-  Quantile_integrator_log_scorecaster:
+  Quantile+Integrator (log)+Scorecaster:
     lrs:
       - 0.2
       - 0.1

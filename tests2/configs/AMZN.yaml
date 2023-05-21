@@ -1,5 +1,5 @@
 real: True
-Quantiles_given: False
+quantiles_given: False
 multiple_series: False 
 T_burnin: 100 
 alpha: 0.1
@@ -14,7 +14,7 @@ sequences:
       - 3 
       - 0
       - 0 
-    window_length: 10 
+    window_length: 50 
     overwrite: False 
 methods:
   Trail:
@@ -34,7 +34,7 @@ methods:
       - 5 
       - 1 
       - 0.1 
-  Quantile_integrator_log:
+  Quantile+Integrator (log):
     lrs:
       - 40 
       - 20 
@@ -43,7 +43,7 @@ methods:
       - 0.1 
     Csat: 1 
     KI: 200 
-  Quantile_integrator_log_scorecaster:
+  Quantile+Integrator (log)+Scorecaster:
     lrs:
       - 40 
       - 20 

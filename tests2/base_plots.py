@@ -8,7 +8,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import pickle as pkl
 import seaborn as sns
 import pdb
-from .plotting_utils import *
+from plotting_utils import *
 
 if __name__ == "__main__":
     # Open file
@@ -33,6 +33,7 @@ if __name__ == "__main__":
     real_data = results["real_data"]
     multiple_series = results["multiple_series"]
     quantiles_given = results["quantiles_given"]
+    asymmetric = results["asymmetric"]
     if real_data:
         forecasts = results["forecasts"]
         data = results["data"]
@@ -49,6 +50,7 @@ if __name__ == "__main__":
     del results["real_data"]
     del results["multiple_series"]
     del results["quantiles_given"]
+    del results["asymmetric"]
 
     """
 
@@ -324,4 +326,4 @@ if __name__ == "__main__":
     with open(metrics_folder + "metrics.tex", "w") as text_file:
         text_file.write(metrics_str)
     # Compile latex
-    os.system("pdflatex -quiet -output-directory " + metrics_folder + " " + metrics_folder + "metrics.tex")
+    os.system("pdflatex -output-directory " + metrics_folder + " " + metrics_folder + "metrics.tex > /dev/null")

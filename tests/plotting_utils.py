@@ -1,7 +1,6 @@
 import os, sys, inspect
 from itertools import groupby
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from core.utils import moving_average
 import numpy as np
 import pandas as pd
 import matplotlib as mpl

@@ -1,7 +1,6 @@
 import os, sys, inspect
 from itertools import groupby
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
-from .utils import plot_coverage_size, plot_sets, plot_vertical_spread, moving_average
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -11,6 +10,10 @@ from plotting_utils import *
 import pickle as pkl
 import seaborn as sns
 import pdb
+
+def moving_average(x, window=50):
+    norm_factor = window / np.convolve( np.ones_like(x), np.ones(window), 'same' ) # Deal with edge effects
+    return norm_factor * (np.convolve(x, np.ones(window), 'same') / window)
 
 if __name__ == "__main__":
     # Open file
@@ -35,6 +38,7 @@ if __name__ == "__main__":
     real_data = results["real_data"]
     multiple_series = results["multiple_series"]
     quantiles_given = results["quantiles_given"]
+    asymmetric = results["asymmetric"]
     if real_data:
         forecasts = results["forecasts"]
         data = results["data"]
@@ -51,6 +55,7 @@ if __name__ == "__main__":
     del results["real_data"]
     del results["multiple_series"]
     del results["quantiles_given"]
+    del results["asymmetric"]
 
     """
 
