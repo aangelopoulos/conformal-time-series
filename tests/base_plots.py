@@ -81,15 +81,19 @@ if __name__ == "__main__":
         color = cmap_lines[i]
         j = 0
         for lr in results[key].keys():
-            axs[j,i].plot(xlabels_nonscores, moving_average((results[key][lr]["q"] >= scores).astype(int))[T_burnin+1:], label=f"lr={lr}, cvg={100*coverages[key][lr]:.1f}%", linewidth=linewidth, color=color, alpha=transparency)
-            axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
+            label = f"lr={lr}, cvg={100*coverages[key][lr]:.1f}%" if lr is not None else f"cvg={100*coverages[key][lr]:.1f}%"
+            axs[j,i].plot(xlabels_nonscores, moving_average((results[key][lr]["q"] >= scores).astype(int))[T_burnin+1:], label=label, linewidth=linewidth, color=color, alpha=transparency)
+            if label is not None:
+                axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
             j = j + 1
-        axs[0,i].set_title(key)
+        # Split the key by the '+' character and add a new line
+        title = key.replace('+', '\n+')
+        axs[0,i].set_title(title)
         i = i + 1
-    fig.supxlabel('time')
-    fig.supylabel('coverage')
+    fig.supxlabel('Time')
+    fig.supylabel('Coverage')
     plt.tight_layout(pad=0.05)
-    plt.subplots_adjust(left=0.05, bottom=0.07)
+    plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
     plt.savefig(plots_folder + "coverage.pdf")
 
     # Size plots!
@@ -104,18 +108,21 @@ if __name__ == "__main__":
         for lr in results[key].keys():
             quantiles = np.clip(results[key][lr]["q"][T_burnin+1:], low_clip, high_clip)
             axs[j,i].plot(xlabels_nonscores, scores[T_burnin+1:],linewidth=linewidth,alpha=transparency/4,color=cmap_lines[-1])
-            axs[j,i].plot(xlabels_nonscores, quantiles, linewidth=linewidth, color=color, alpha=transparency, label=f"lr={lr}")
-            axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
+            label = f"lr={lr}" if lr is not None else None
+            axs[j,i].plot(xlabels_nonscores, quantiles, linewidth=linewidth, color=color, alpha=transparency, label=label)
+            if label is not None:
+                axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
             j = j + 1
-        axs[0,i].set_title(key)
+        title = key.replace('+', '\n+')
+        axs[0,i].set_title(title)
         i = i + 1
     axs[0,0].plot(scores,linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
     axs[0,0].set_title("scores")
     plt.ylim([low_clip, high_clip])
-    fig.supxlabel('time')
-    fig.supylabel(r'$\hat{q}$')
+    fig.supxlabel('Time')
+    fig.supylabel(r'$q_t$')
     plt.tight_layout(pad=0.05)
-    plt.subplots_adjust(left=0.05, bottom=0.07)
+    plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
     plt.savefig(plots_folder + "size.pdf")
 
     # Size plots (zoomed in)!
@@ -131,42 +138,22 @@ if __name__ == "__main__":
         for lr in results[key].keys():
             quantiles = np.clip(results[key][lr]["q"][-last:], low_clip, high_clip)
             axs[j,i].plot(xlabels_nonscores[-last:], scores[-last:],linewidth=linewidth,alpha=transparency/4,color=cmap_lines[-1])
-            axs[j,i].plot(xlabels_nonscores[-last:], quantiles, linewidth=linewidth, color=color, alpha=transparency, label=f"lr={lr}")
-            axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
+            label = f"lr={lr}" if lr is not None else None
+            axs[j,i].plot(xlabels_nonscores[-last:], quantiles, linewidth=linewidth, color=color, alpha=transparency, label=label)
+            if label is not None:
+                axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
             j = j + 1
-        axs[0,i].set_title(key)
+        title = key.replace('+', '\n+')
+        axs[0,i].set_title(title)
         i = i + 1
     axs[0,0].plot(xlabels_nonscores[-last:], scores[-last:],linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
     axs[0,0].set_title("scores")
     plt.ylim([low_clip, high_clip])
-    fig.supxlabel('time')
-    fig.supylabel(r'$\hat{q}$')
+    fig.supxlabel('Time')
+    fig.supylabel(r'$q_t$')
     plt.tight_layout(pad=0.05)
-    plt.subplots_adjust(left=0.05, bottom=0.07)
+    plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
     plt.savefig(plots_folder + "size_zoomed.pdf")
-
-    # Size-score-corr!
-    fig, axs = plt.subplots(nrows=nrows, ncols=ncols, sharex=True, sharey=True, figsize = (ncols*10.1, nrows*6.4))
-    # Make plots
-    low_clip = scores.min() * 0.9
-    high_clip = scores.max() * 1.1
-    i = 0
-    for key in results.keys():
-        color = cmap_lines[i]
-        j = 0
-        for lr in results[key].keys():
-            quantiles = np.clip(results[key][lr]["q"][T_burnin+1:], low_clip, high_clip)
-            sns.kdeplot(ax=axs[j,i],x=scores[T_burnin+1:], y=quantiles, color=color, fill=True, hue_norm=(0,1), alpha=transparency, label=f"lr={lr}")
-            axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
-            j = j + 1
-        axs[0,i].set_title(key)
-        i = i + 1
-    plt.ylim([low_clip, high_clip])
-    fig.supxlabel('score')
-    fig.supylabel(r'$\hat{q}$')
-    plt.tight_layout(pad=0.05)
-    plt.subplots_adjust(left=0.05, bottom=0.07)
-    plt.savefig(plots_folder + "corr.pdf")
 
     # Plot sets (zoomed)
     if real_data:
@@ -195,11 +182,14 @@ if __name__ == "__main__":
                 cvds_zoomed = (sets_zoomed[0] <= y_zoomed) & (sets_zoomed[1] >= y_zoomed)
                 axs[j,i].plot(np.arange(y_zoomed.shape[0]), y_zoomed, color='black', alpha=0.2)
                 idx_miscovered = np.where(1-cvds_zoomed)[0]
-                axs[j,i].fill_between(np.arange(y_zoomed.shape[0]), sets_zoomed[0], sets_zoomed[1], color=color, alpha=transparency, label=f"lr={lr}")
-                axs[j,i].scatter(idx_miscovered, y_zoomed[idx_miscovered], color='#FF000044', marker='o', s=10)
-                axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
+                label = f"lr={lr}" if lr is not None else None
+                axs[j,i].fill_between(np.arange(y_zoomed.shape[0]), sets_zoomed[0], sets_zoomed[1], color=color, alpha=transparency, label=label)
+                #axs[j,i].scatter(idx_miscovered, y_zoomed[idx_miscovered], color='#FF000044', marker='o', s=10)
+                if label is not None:
+                    axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                 j = j + 1
-            axs[0,i].set_title(key)
+            title = key.replace('+', '\n+')
+            axs[0,i].set_title(title)
             i = i + 1
         axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
@@ -210,10 +200,10 @@ if __name__ == "__main__":
         axs[1,0].legend()
         axs[0,0].set_title("y")
         plt.ylim([y_clip_low, y_clip_high])
-        fig.supxlabel('time')
+        fig.supxlabel('Time')
         fig.supylabel(r'$\mathcal{C}_t$')
         plt.tight_layout(pad=0.05)
-        plt.subplots_adjust(left=0.05, bottom=0.07)
+        plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
         plt.savefig(plots_folder + "sets_zoomed.pdf")
 
     # Plot sets
@@ -243,11 +233,14 @@ if __name__ == "__main__":
                 cvds = (sets[0] <= y) & (sets[1] >= y)
                 axs[j,i].plot(np.arange(y.shape[0]), y, color='black', alpha=0.2)
                 idx_miscovered = np.where(1-cvds)[0]
-                axs[j,i].fill_between(np.arange(y.shape[0]), sets[0], sets[1], color=color, alpha=transparency, label=f"lr={lr}")
-                axs[j,i].scatter(idx_miscovered, y[idx_miscovered], color='#FF000044', marker='o', s=10)
-                axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
+                label = f"lr={lr}" if lr is not None else None
+                axs[j,i].fill_between(np.arange(y.shape[0]), sets[0], sets[1], color=color, alpha=transparency, label=label)
+                #axs[j,i].scatter(idx_miscovered, y[idx_miscovered], color='#FF000044', marker='o', s=10)
+                if label is not None:
+                    axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                 j = j + 1
-            axs[0,i].set_title(key)
+            title = key.replace('+', '\n+')
+            axs[0,i].set_title(title)
             i = i + 1
         axs[0,0].plot(y,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
@@ -258,10 +251,10 @@ if __name__ == "__main__":
         axs[1,0].legend()
         axs[0,0].set_title("y")
         plt.ylim([y_clip_low, y_clip_high])
-        fig.supxlabel('time')
+        fig.supxlabel('Time')
         fig.supylabel(r'$\mathcal{C}_t$')
         plt.tight_layout(pad=0.05)
-        plt.subplots_adjust(left=0.05, bottom=0.07)
+        plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
         plt.savefig(plots_folder + "sets.pdf")
 
     # calculate metrics

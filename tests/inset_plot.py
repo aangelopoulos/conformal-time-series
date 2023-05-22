@@ -65,8 +65,8 @@ if __name__ == '__main__':
     method_title_map = {
         'ACI': 'ACI',
         'Quantile': 'Quantile tracker',
-        'Quantile + Integrator (log)': 'Quantile tracker + Integrator',
-        'Quantile + Integrator (log) + Scorecaster': 'Quantile tracker + Integrator + Scorecaster'
+        'Quantile+Integrator (log)': 'Quantile tracker + Integrator',
+        'Quantile+Integrator (log)+Scorecaster': 'Quantile tracker + Integrator + Scorecaster'
     }
 
     # Parse command line arguments
