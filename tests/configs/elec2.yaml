@@ -4,7 +4,7 @@ multiple_series: False
 T_burnin: 100 
 alpha: 0.1
 seasonal_period: 48
-asymmetric: False
+score_function_name: "signed-residual"
 sequences:
   0:
     dataset: "elec2"
@@ -14,7 +14,7 @@ sequences:
       - 3 
       - 0 
       - 0
-    window_length: 20 
+    window_length: 80 
     overwrite: False
 methods:
   Trail:

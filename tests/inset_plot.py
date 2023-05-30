@@ -82,25 +82,15 @@ if __name__ == '__main__':
     # Extract time series data using provided keys and learning rates
     quantiles_given = data['quantiles_given']
     T_burnin = data['T_burnin']
-    quantiles1 = data[args.key1][args.lr1]['q'][1:]
-    quantiles2 = data[args.key2][args.lr2]['q'][1:]
+    sets1 = [np.stack(data[args.key1][args.lr1]['sets'])[1:,0], np.stack(data[args.key1][args.lr1]['sets'])[1:,1]]
+    sets2 = [np.stack(data[args.key2][args.lr2]['sets'])[1:,0], np.stack(data[args.key2][args.lr2]['sets'])[1:,1]]
     forecasts = data['forecasts']
     asymmetric = data['asymmetric']
     # if forecasts is a list, clip off the last element of each. otherwise, clip off the last element of the array
     forecasts = [f[:-1] for f in forecasts] if isinstance(forecasts, list) else forecasts[:-1]
     alpha = data['alpha']
     scores = data['scores']
-    y = data['data'][data['data']['item_id'] == 'y']['target'].to_numpy().astype(float)[:-1]
-    if quantiles_given:
-        sets1 = [forecasts[0] - quantiles1, forecasts[-1] + quantiles1]
-        sets2 = [forecasts[0] - quantiles2, forecasts[-1] + quantiles2]
-    else:
-        if not asymmetric:
-            sets1 = [forecasts - quantiles1, forecasts + quantiles1]
-            sets2 = [forecasts - quantiles2, forecasts + quantiles2]
-        else:
-            sets1 = [forecasts - quantiles1, forecasts + quantiles1]
-            sets2 = [forecasts - quantiles2, forecasts + quantiles2]
+    y = data['data']['y'].to_numpy().astype(float)[:-1]
 
     covered1 = moving_average(((y >= sets1[0]) & (y <= sets1[1])).astype(float))
     covered2 = moving_average(((y >= sets2[0]) & (y <= sets2[1])).astype(float))
@@ -113,6 +103,8 @@ if __name__ == '__main__':
     window_end = args.window_start + args.window_length
 
     savename = datasetname + '_' + args.key1 + '_lr' + str(args.lr1) + '_' + args.key2 + '_lr' + str(args.lr2) + '_window' + str(args.window_length) + '_start' + str(args.window_start)
+
+    pdb.set_trace()
 
     # Call the plot_time_series function to plot the data
     plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, T_burnin, window_start, window_end, savename)

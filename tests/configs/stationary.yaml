@@ -3,7 +3,6 @@ quantiles_given: False
 multiple_series: False 
 T_burnin: 100
 alpha: 0.1
-asymmetric: False
 sequences:
   0:
     category: "linear"

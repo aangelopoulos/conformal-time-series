@@ -4,7 +4,7 @@ multiple_series: False
 T_burnin: 100 
 alpha: 0.1
 seasonal_period: 5
-asymmetric: False
+score_function_name: "signed-residual"
 sequences:
   0:
     dataset: "GOOGL"

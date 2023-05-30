@@ -61,7 +61,7 @@ def aci(
                 qs[t] = np.quantile(scores[:t], 1-alpha)
             else:
                 qs[t] = np.infty
-    results = { "method": "ACI", "q" : qs, "gradient" : grads, "alpha" : alphas}
+    results = { "method": "ACI", "q" : qs, "grads" : grads, "alpha" : alphas}
     return results
 
 """
@@ -158,16 +158,16 @@ def quantile_integrator_log_scorecaster(
     qs = np.zeros((T_test,))
     forecasts = np.zeros((T_test,))
     adj = np.zeros((T_test,))
-    if data is None: # Data is synthetic
-        data = pd.DataFrame({'timestamp': np.arange(scores.shape[0]), 'item_id': 'y', 'target': scores})
-    if (data['timestamp'].dtype == str):
-        data['timestamp'] = pd.to_datetime(data['timestamp'])
-    uq_timestamps = data['timestamp'].unique()
-    data = data[data.item_id == 'y'].copy()
-    data.drop('item_id', axis=1, inplace=True)
-    data['target'] = scores # KLUGE: We are forecasting scores now
-    data = data.astype({'target': 'float'})
-    data = data.set_index('timestamp')
+    #if data is None: # Data is synthetic
+    #    data = pd.DataFrame({'timestamp': np.arange(scores.shape[0]), 'item_id': 'y', 'target': scores})
+    #if (data['timestamp'].dtype == str):
+    #    data['timestamp'] = pd.to_datetime(data['timestamp'])
+    #uq_timestamps = data['timestamp'].unique()
+    #data = data[data.item_id == 'y'].copy()
+    #data.drop('item_id', axis=1, inplace=True)
+    #data['target'] = scores # KLUGE: We are forecasting scores now
+    #data = data.astype({'target': 'float'})
+    #data = data.set_index('timestamp')
     seasonal_period = kwargs.get('seasonal_period')
     train_model = True
     try:
@@ -181,7 +181,7 @@ def quantile_integrator_log_scorecaster(
     for t in tqdm(range(T_test)):
         if t > T_burnin:
             curr_steps_ahead = min(t+steps_ahead, T_test) - t
-            curr_dates = uq_timestamps[t:t+curr_steps_ahead]
+            curr_dates = data.index[t:t+curr_steps_ahead]
             initial_level = 0
             initial_trend = 0
             initial_seasonal = None if seasonal_period is None else 0
@@ -192,7 +192,7 @@ def quantile_integrator_log_scorecaster(
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore")
                     model = ExponentialSmoothing(
-                        curr_data,
+                        curr_data['y'],
                         seasonal_periods=seasonal_period,
                         trend='add',
                         seasonal=None if seasonal_period is None else 'add',
@@ -206,7 +206,6 @@ def quantile_integrator_log_scorecaster(
                     initial_seasonal = None if seasonal_period is None else np.nan_to_num(model.season)
                     simulations = model.simulate(curr_steps_ahead, repetitions=100).to_numpy()
                     next_forecasts = np.nan_to_num(np.quantile(simulations, 1-alpha, axis=1), forecasts[t-1])
-                    #print(initial_level, initial_trend, initial_seasonal, next_forecasts)
                     forecasts[t:t+curr_steps_ahead] = next_forecasts
             qs[t] = forecasts[t] + adj[t] + saturation_fn_log(I, t, Csat, KI, T_burnin)
             covered = qs[t] >= scores[t]

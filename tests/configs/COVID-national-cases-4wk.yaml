@@ -3,7 +3,7 @@ quantiles_given: True
 multiple_series: False 
 T_burnin: 10 
 alpha: 0.2
-asymmetric: False
+score_function_name: "cqr-asymmetric"
 sequences:
   0:
     dataset: "COVID-national-cases-4wk"
