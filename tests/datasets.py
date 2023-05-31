@@ -43,7 +43,7 @@ def load_dataset(name):
         y = df[df['quantile'] == 0.1]['actual'].to_numpy()
         timestamp = df[df['quantile'] == 0.1]['target_end_date'].to_numpy()
         forecast = np.array([df[df['quantile'] == 0.1]['value'].to_numpy(), df[df['quantile'] == 0.5]['value'].to_numpy(), df[df['quantile'] == 0.9]['value'].to_numpy()], dtype='float').T
-        data = pd.DataFrame([y, forecast, timestamp], index=['y', 'forecast', 'timestamp']).T
+        data = pd.DataFrame([y, forecast, timestamp], index=['y', 'forecasts', 'timestamp']).T
         data = data.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
     if name == "COVID-national-cases-4wk":
@@ -55,7 +55,7 @@ def load_dataset(name):
         y = df[df['quantile'] == 0.1]['actual'].to_numpy()
         timestamp = df[df['quantile'] == 0.1]['target_end_date'].to_numpy()
         forecast = np.array([df[df['quantile'] == 0.1]['value'].to_numpy(), df[df['quantile'] == 0.5]['value'].to_numpy(), df[df['quantile'] == 0.9]['value'].to_numpy()], dtype='float').T
-        data = pd.DataFrame([y, forecast, timestamp], index=['y', 'forecast', 'timestamp']).T
+        data = pd.DataFrame([y, forecast, timestamp], index=['y', 'forecasts', 'timestamp']).T
         data = data.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
     if name == "elec2":

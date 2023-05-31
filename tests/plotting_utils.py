@@ -70,15 +70,15 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, sets,
     else:
         ts_list_finite = [ [np.where(np.isfinite(time_series[0]) & np.isfinite(time_series[1]), time_series[0], np.nan), np.where(np.isfinite(time_series[0]) & np.isfinite(time_series[1]), time_series[1], np.nan)] for time_series in time_series_list ]
     if not sets:
-        minval_ax = min([ np.nanmin(time_series[T_burnin:]) for time_series in ts_list_finite ])
-        maxval_ax = max([ np.nanmax(time_series[T_burnin:]) for time_series in ts_list_finite ])
-        minval_axins = min([ np.nanmin(time_series[window_start:window_end]) for time_series in ts_list_finite ])
-        maxval_axins = max([ np.nanmax(time_series[window_start:window_end]) for time_series in ts_list_finite ])
+        minval_ax = np.nanmin([ np.nanmin(time_series[T_burnin:]) for time_series in ts_list_finite ])
+        maxval_ax = np.nanmax([ np.nanmax(time_series[T_burnin:]) for time_series in ts_list_finite ])
+        minval_axins = np.nanmin([ np.nanmin(time_series[window_start:window_end]) for time_series in ts_list_finite ])
+        maxval_axins = np.nanmax([ np.nanmax(time_series[window_start:window_end]) for time_series in ts_list_finite ])
     else:
-        minval_ax = min([ np.nanmin(time_series[0][T_burnin:]) for time_series in ts_list_finite ])
-        maxval_ax = max([ np.nanmax(time_series[1][T_burnin:]) for time_series in ts_list_finite ])
-        minval_axins = min([ np.nanmin(time_series[0][window_start:window_end]) for time_series in ts_list_finite ])
-        maxval_axins = max([ np.nanmax(time_series[1][window_start:window_end]) for time_series in ts_list_finite ])
+        minval_ax = np.nanmin([ np.nanmin(time_series[0][T_burnin:]) for time_series in ts_list_finite ])
+        maxval_ax = np.nanmax([ np.nanmax(time_series[1][T_burnin:]) for time_series in ts_list_finite ])
+        minval_axins = np.nanmin([ np.nanmin(time_series[0][window_start:window_end]) for time_series in ts_list_finite ])
+        maxval_axins = np.nanmax([ np.nanmax(time_series[1][window_start:window_end]) for time_series in ts_list_finite ])
 
     for i, time_series in enumerate(time_series_list):
         ax = axs[i]

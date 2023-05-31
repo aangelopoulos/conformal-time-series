@@ -44,14 +44,14 @@ if __name__ == "__main__":
             asymmetric = True
         elif score_function_name == "cqr-symmetric":
             def score_function(y, forecasts):
-                return np.maximum(forecasts[:,0] - y, y - forecasts[:,-1])
+                return np.maximum(forecasts[0] - y, y - forecasts[-1])
             def set_function(forecast, q):
-                return np.array([forecast - q, forecast + q])
+                return np.array([forecast[0] - q, forecast[-1] + q])
         elif score_function_name == "cqr-asymmetric":
             def score_function(y, forecasts):
-                return np.array([forecast[0] - y, y - forecast[-1]])
+                return np.array([forecasts[0] - y, y - forecasts[-1]])
             def set_function(forecast, q):
-                return np.array([forecast - q[0], forecast + q[1]])
+                return np.array([forecast[0] - q[0], forecast[-1] + q[1]])
             asymmetric = True
         else:
             raise ValueError("Invalid score function name")
@@ -108,7 +108,6 @@ if __name__ == "__main__":
         for lr in lrs:
             if asymmetric:
                 stacked_scores = np.stack(data['scores'].to_list())
-                # TODO: Something is wrong here
                 q = [fn(stacked_scores[:,0], args['alpha']/2, lr, **kwargs)['q'], fn(stacked_scores[:,1], args['alpha']/2, lr, **kwargs)['q']]
                 q = [ np.array([q[0][i], q[1][i]]) for i in range(len(q[0])) ]
             else:

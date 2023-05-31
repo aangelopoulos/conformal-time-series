@@ -189,24 +189,24 @@ def quantile_integrator_log_scorecaster(
                 # Use the statsmodels seasonal exponential smoothing to forecast the next steps_ahead quantiles
                 curr_data = data[data.index < curr_dates[0]]
                 # Ignore ValueWarnings
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    model = ExponentialSmoothing(
-                        curr_data['y'],
-                        seasonal_periods=seasonal_period,
-                        trend='add',
-                        seasonal=None if seasonal_period is None else 'add',
-                        initial_level = initial_level,
-                        initial_trend = initial_trend,
-                        initial_seasonal = initial_seasonal,
-                        initialization_method="known",
-                    ).fit()
-                    initial_level = np.nan_to_num(model.level)
-                    initial_trend = np.nan_to_num(model.trend)
-                    initial_seasonal = None if seasonal_period is None else np.nan_to_num(model.season)
-                    simulations = model.simulate(curr_steps_ahead, repetitions=100).to_numpy()
-                    next_forecasts = np.nan_to_num(np.quantile(simulations, 1-alpha, axis=1), forecasts[t-1])
-                    forecasts[t:t+curr_steps_ahead] = next_forecasts
+                #with warnings.catch_warnings():
+                #    warnings.simplefilter("ignore")
+                model = ExponentialSmoothing(
+                    curr_data['y'].astype(float),
+                    seasonal_periods=seasonal_period,
+                    trend='add',
+                    seasonal=None if seasonal_period is None else 'add',
+                    initial_level = initial_level,
+                    initial_trend = initial_trend,
+                    initial_seasonal = initial_seasonal,
+                    initialization_method="known",
+                ).fit()
+                initial_level = np.nan_to_num(model.level)
+                initial_trend = np.nan_to_num(model.trend)
+                initial_seasonal = None if seasonal_period is None else np.nan_to_num(model.season)
+                simulations = model.simulate(curr_steps_ahead, repetitions=100).to_numpy()
+                next_forecasts = np.nan_to_num(np.quantile(simulations, 1-alpha, axis=1), forecasts[t-1])
+                forecasts[t:t+curr_steps_ahead] = next_forecasts
             qs[t] = forecasts[t] + adj[t] + saturation_fn_log(I, t, Csat, KI, T_burnin)
             covered = qs[t] >= scores[t]
             sum_errors += 1-covered

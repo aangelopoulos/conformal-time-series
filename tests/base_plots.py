@@ -101,8 +101,8 @@ if __name__ == "__main__":
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
     # Make plots
     i = 1
-    low_clip = np.stack(scores).max(axis=1).min() * 0.9
-    high_clip = np.stack(scores).max(axis=1).max() * 1.1
+    low_clip = np.nanmin(np.stack(scores).max(axis=1)) * 0.9
+    high_clip = np.nanmax(np.stack(scores).max(axis=1)) * 1.1
     for key in results.keys():
         color = cmap_lines[i-1]
         j = 0
@@ -114,7 +114,7 @@ if __name__ == "__main__":
             if label is not None:
                 axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
             j = j + 1
-        title = key.replace('+', '\n+')
+        title = key.replace('+', '\n+').replace('(log)', '')
         axs[0,i].set_title(title)
         i = i + 1
     axs[0,0].plot(np.stack(scores).max(axis=1),linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
@@ -131,8 +131,8 @@ if __name__ == "__main__":
     # Make plots
     last = 80
     i = 1
-    low_clip = np.stack(scores).max(axis=1).min() * 0.9
-    high_clip = np.stack(scores).max(axis=1).max() * 1.1
+    low_clip = np.nanmin(np.stack(scores)[-last:].max(axis=1)) * 0.9
+    high_clip = np.nanmax(np.stack(scores)[-last:].max(axis=1)) * 1.1
     for key in results.keys():
         color = cmap_lines[i-1]
         j = 0
@@ -168,8 +168,8 @@ if __name__ == "__main__":
         fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
         # Find limits
         i = 1
-        y_clip_low = y_zoomed.min() * 0.8
-        y_clip_high = y_zoomed.max() * 1.2
+        y_clip_low = np.nanmin(y_zoomed) * 0.8
+        y_clip_high = np.nanmax(y_zoomed) * 1.2
         for key in results.keys():
             color = lighten_color(desaturate_color(cmap_lines[i-1], saturation=0.3), 0.5)
             j = 0
@@ -214,8 +214,8 @@ if __name__ == "__main__":
         fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
         # Find limits
         i = 1
-        y_clip_low = y_zoomed.min() * 0.8
-        y_clip_high = y_zoomed.max() * 1.2
+        y_clip_low = np.nanmin(y_zoomed) * 0.8
+        y_clip_high = np.nanmax(y_zoomed) * 1.2
         for key in results.keys():
             color = lighten_color(desaturate_color(cmap_lines[i-1], saturation=0.3), 0.5)
             j = 0

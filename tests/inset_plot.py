@@ -104,7 +104,5 @@ if __name__ == '__main__':
 
     savename = datasetname + '_' + args.key1 + '_lr' + str(args.lr1) + '_' + args.key2 + '_lr' + str(args.lr2) + '_window' + str(args.window_length) + '_start' + str(args.window_start)
 
-    pdb.set_trace()
-
     # Call the plot_time_series function to plot the data
     plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, T_burnin, window_start, window_end, savename)
