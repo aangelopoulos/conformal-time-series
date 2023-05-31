@@ -14,10 +14,10 @@ import pdb
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mtick
 
-def plot_everything(coverages_list, sets_list, titles_list, y, alpha, T_burnin, window_start, window_end, savename):
+def plot_everything(coverages_list, sets_list, titles_list, y, alpha, T_burnin, window_start, window_end, window_loc, savename):
     fig, axs = plt.subplots(nrows=2, ncols=len(coverages_list), figsize=(10 * len(coverages_list), 6), sharex=True, sharey=False)
-    plot_time_series(fig, axs[0,:], coverages_list, window_start, window_end, False, T_burnin, y, "#138085", hline=1-alpha )
-    plot_time_series(fig, axs[1,:], sets_list, window_start, window_end, True, T_burnin, y, "#EEB362")
+    plot_time_series(fig, axs[0,:], coverages_list, window_start, window_end, window_loc, False, T_burnin, y, "#138085", hline=1-alpha )
+    plot_time_series(fig, axs[1,:], sets_list, window_start, window_end, window_loc, True, T_burnin, y, "#EEB362")
     axs[0,0].set_ylabel('Coverage', fontsize=20)
     axs[1,0].set_ylabel('Sets', fontsize=20)
     axs[0,0].set_title(titles_list[0], fontsize=20)
@@ -61,6 +61,8 @@ if __name__ == '__main__':
     parser.add_argument('lr2', help='Learning rate associated with second key.', type=float)
     parser.add_argument('window_length', help='Length of inset window.', default=60, type=int)
     parser.add_argument('window_start', help='Start of inset window.', default=None, type=int)
+    parser.add_argument('window_loc', help='Location of inset window.', default='upper right', type=str)
+    parser.add_argument('coverage_average_length', help='Length of moving average window for coverage.', default=50, type=int)
 
     method_title_map = {
         'ACI': 'ACI',
@@ -92,8 +94,8 @@ if __name__ == '__main__':
     scores = data['scores']
     y = data['data']['y'].to_numpy().astype(float)[:-1]
 
-    covered1 = moving_average(((y >= sets1[0]) & (y <= sets1[1])).astype(float))
-    covered2 = moving_average(((y >= sets2[0]) & (y <= sets2[1])).astype(float))
+    covered1 = moving_average(((y >= sets1[0]) & (y <= sets1[1])).astype(float), args.coverage_average_length)
+    covered2 = moving_average(((y >= sets2[0]) & (y <= sets2[1])).astype(float), args.coverage_average_length)
 
     # Create pandas Series from the arrays with a simple numeric index
     time_series1 = pd.Series(covered1)
@@ -105,4 +107,4 @@ if __name__ == '__main__':
     savename = datasetname + '_' + args.key1 + '_lr' + str(args.lr1) + '_' + args.key2 + '_lr' + str(args.lr2) + '_window' + str(args.window_length) + '_start' + str(args.window_start)
 
     # Call the plot_time_series function to plot the data
-    plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, T_burnin, window_start, window_end, savename)
+    plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, T_burnin, window_start, window_end, args.window_loc, savename)

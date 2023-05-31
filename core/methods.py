@@ -206,6 +206,8 @@ def quantile_integrator_log_scorecaster(
     #data = data.astype({'target': 'float'})
     #data = data.set_index('timestamp')
     seasonal_period = kwargs.get('seasonal_period')
+    if seasonal_period is None:
+        seasonal_period = 1
     train_model = True
     try:
         os.makedirs('./.cache/scorecaster/', exist_ok=True)

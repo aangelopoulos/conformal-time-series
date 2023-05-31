@@ -60,7 +60,7 @@ def moving_average(x, window=50):
     norm_factor = window / np.convolve( np.ones_like(x), np.ones(window), 'same' ) # Deal with edge effects
     return norm_factor * (np.convolve(x, np.ones(window), 'same') / window)
 
-def plot_time_series(fig, axs, time_series_list, window_start, window_end, sets, T_burnin, y, color, hline=None):
+def plot_time_series(fig, axs, time_series_list, window_start, window_end, window_loc, sets, T_burnin, y, color, hline=None):
     # Create a figure and a grid of subplots
     all_axins = []
     # Get the minimum and maximum values for the axes and axins
@@ -95,7 +95,10 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, sets,
         sns.despine(ax=ax)  # Despine the top and right axes
 
         # Define the inset ax in the lower right corner
-        axins = ax.inset_axes([0.6,0.05,0.4,0.4])
+        if window_loc == 'lower right':
+            axins = ax.inset_axes([0.6,0.05,0.4,0.4])
+        elif window_loc == 'upper right':
+            axins = ax.inset_axes([0.6,0.6,0.4,0.4])
         #axins = inset_axes(ax, width="40%", height="40%", loc='lower center', borderpad=2)
 
         # Give the inset a different background color

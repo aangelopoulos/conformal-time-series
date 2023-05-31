@@ -161,7 +161,7 @@ if __name__ == "__main__":
         axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
         try:
-            axs[1,0].plot(forecasts_zoomed[1].to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
+            axs[1,0].plot(np.array(forecasts_zoomed[1]),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         except:
             axs[1,0].plot(forecasts_zoomed.to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         axs[1,0].legend()
@@ -207,7 +207,7 @@ if __name__ == "__main__":
         axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
         try:
-            axs[1,0].plot(forecasts_zoomed[1].to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
+            axs[1,0].plot(np.array(forecasts_zoomed[1]),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         except:
             axs[1,0].plot(forecasts_zoomed.to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         axs[1,0].legend()
