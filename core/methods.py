@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import copy
 from statsmodels.tsa.api import ExponentialSmoothing
+from statsmodels.tsa.forecasting.theta import ThetaModel
 from tqdm import tqdm
 import pdb
 import warnings
@@ -141,6 +142,41 @@ def quantile_integrator_log(
     results = {"method": "Quantile+Integrator (log)", "q" : qs, "grads": grads}
     return results
 
+def quantile_integrator_log_momentum(
+    scores,
+    alpha,
+    lr,
+    Csat,
+    KI,
+    T_burnin,
+    *args,
+    **kwargs
+):
+    T_test = scores.shape[0]
+    grads = np.zeros((T_test,))
+    qs = np.zeros((T_test,))
+    phis = np.zeros((T_test,))
+    shats = np.zeros((T_test,))
+    sum_errors = 0
+    for t in tqdm(range(T_test)):
+        # First, calculate the quantile in the current timestep
+        covered = qs[t] >= scores[t]
+        if t > T_burnin:
+            sum_errors += 1-covered
+        grads[t] = alpha if covered else -(1-alpha)
+        # PI step
+        P = - lr * grads[t]
+        if t > T_burnin:
+            I = sum_errors - (t-T_burnin)*alpha
+        else:
+            I = 0
+        if t < T_test - 1:
+            phis[t+1] = shats[t] + P
+            shats[t+1] = phis[t+1] + 0.98 * (phis[t+1] - phis[t]) # Nesterov Momentum Step
+            qs[t+1] = shats[t+1] + saturation_fn_log(I, t, Csat, KI, T_burnin)
+    results = {"method": "Quantile+Integrator (log)+Momentum", "q" : qs, "grads": grads}
+    return results
+
 def quantile_integrator_log_scorecaster(
     scores,
     alpha,
@@ -150,6 +186,7 @@ def quantile_integrator_log_scorecaster(
     Csat,
     KI,
     steps_ahead,
+    upper,
     *args,
     **kwargs
 ):
@@ -172,7 +209,7 @@ def quantile_integrator_log_scorecaster(
     train_model = True
     try:
         os.makedirs('./.cache/scorecaster/', exist_ok=True)
-        forecasts = np.load('./.cache/scorecaster/' + kwargs.get('config_name') + '.npy')
+        forecasts = np.load('./.cache/scorecaster/' + kwargs.get('config_name') + '_' + str(upper) + '.npy')
         train_model = False
     except:
         pass
@@ -181,32 +218,13 @@ def quantile_integrator_log_scorecaster(
     for t in tqdm(range(T_test)):
         if t > T_burnin:
             curr_steps_ahead = min(t+steps_ahead, T_test) - t
-            curr_dates = data.index[t:t+curr_steps_ahead]
-            initial_level = 0
-            initial_trend = 0
-            initial_seasonal = None if seasonal_period is None else 0
+            curr_scores = scores[:t]
             if train_model and (t - T_burnin - 1) % steps_ahead == 0:
-                # Use the statsmodels seasonal exponential smoothing to forecast the next steps_ahead quantiles
-                curr_data = data[data.index < curr_dates[0]]
-                # Ignore ValueWarnings
-                #with warnings.catch_warnings():
-                #    warnings.simplefilter("ignore")
-                model = ExponentialSmoothing(
-                    curr_data['y'].astype(float),
-                    seasonal_periods=seasonal_period,
-                    trend='add',
-                    seasonal=None if seasonal_period is None else 'add',
-                    initial_level = initial_level,
-                    initial_trend = initial_trend,
-                    initial_seasonal = initial_seasonal,
-                    initialization_method="known",
-                ).fit()
-                initial_level = np.nan_to_num(model.level)
-                initial_trend = np.nan_to_num(model.trend)
-                initial_seasonal = None if seasonal_period is None else np.nan_to_num(model.season)
-                simulations = model.simulate(curr_steps_ahead, repetitions=100).to_numpy()
-                next_forecasts = np.nan_to_num(np.quantile(simulations, 1-alpha, axis=1), forecasts[t-1])
-                forecasts[t:t+curr_steps_ahead] = next_forecasts
+                model = ThetaModel(
+                        curr_scores.astype(float),
+                        period=seasonal_period,
+                        ).fit()
+                forecasts[t:t+curr_steps_ahead] = model.forecast(curr_steps_ahead)
             qs[t] = forecasts[t] + adj[t] + saturation_fn_log(I, t, Csat, KI, T_burnin)
             covered = qs[t] >= scores[t]
             sum_errors += 1-covered
@@ -219,5 +237,5 @@ def quantile_integrator_log_scorecaster(
             qs[t+1] = scores[t]
     results = {"method": "Quantile+Integrator (log)+Scorecaster", "q" : qs, "grads": grads}
     if train_model:
-        np.save('./.cache/scorecaster/' + kwargs.get('config_name') + '.npy', forecasts)
+        np.save('./.cache/scorecaster/' + kwargs.get('config_name') + '_' + str(upper) + '.npy', forecasts)
     return results

@@ -97,57 +97,28 @@ if __name__ == "__main__":
     plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
     plt.savefig(plots_folder + "coverage.pdf")
 
-    # Size plots!
+    # Size plots (zoomed in)!
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
     # Make plots
+    last = 100
     i = 1
-    low_clip = np.nanmin(np.stack(scores).max(axis=1)) * 0.9
-    high_clip = np.nanmax(np.stack(scores).max(axis=1)) * 1.1
+    low_clip = np.nanmin(np.stack(scores)[-last:,1]) * 0.9
+    high_clip = np.nanmax(np.stack(scores)[-last:,1]) * 1.1
     for key in results.keys():
         color = cmap_lines[i-1]
         j = 0
         for lr in results[key].keys():
-            quantiles = np.clip(np.stack(results[key][lr]["q"]).max(axis=1)[T_burnin+1:], low_clip, high_clip)
-            axs[j,i].plot(xlabels_nonscores, np.stack(scores).max(axis=1)[T_burnin+1:],linewidth=linewidth,alpha=transparency/4,color=cmap_lines[-1])
+            quantiles = np.clip(np.stack(results[key][lr]["q"])[-last:,1], low_clip, high_clip)
+            axs[j,i].plot(xlabels_nonscores[-last:], np.stack(scores)[-last:,1],linewidth=linewidth,alpha=transparency/4,color=cmap_lines[-1])
             label = f"lr={lr}" if lr is not None else None
-            axs[j,i].plot(xlabels_nonscores, quantiles, linewidth=linewidth, color=color, alpha=transparency, label=label)
+            axs[j,i].plot(xlabels_nonscores[-last:], quantiles[-last:], linewidth=linewidth, color=color, alpha=transparency, label=label)
             if label is not None:
                 axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
             j = j + 1
         title = key.replace('+', '\n+').replace('(log)', '')
         axs[0,i].set_title(title)
         i = i + 1
-    axs[0,0].plot(np.stack(scores).max(axis=1),linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
-    axs[0,0].set_title("scores")
-    plt.ylim([low_clip, high_clip])
-    fig.supxlabel('Time')
-    fig.supylabel(r'$q_t$')
-    plt.tight_layout(pad=0.05)
-    plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
-    plt.savefig(plots_folder + "size.pdf")
-
-    # Size plots (zoomed in)!
-    fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
-    # Make plots
-    last = 80
-    i = 1
-    low_clip = np.nanmin(np.stack(scores)[-last:].max(axis=1)) * 0.9
-    high_clip = np.nanmax(np.stack(scores)[-last:].max(axis=1)) * 1.1
-    for key in results.keys():
-        color = cmap_lines[i-1]
-        j = 0
-        for lr in results[key].keys():
-            quantiles = np.clip(np.stack(results[key][lr]["q"]).max(axis=1)[-last:], low_clip, high_clip)
-            axs[j,i].plot(xlabels_nonscores[-last:], np.stack(scores).max(axis=1)[-last:],linewidth=linewidth,alpha=transparency/4,color=cmap_lines[-1])
-            label = f"lr={lr}" if lr is not None else None
-            axs[j,i].plot(xlabels_nonscores[-last:], quantiles[-last:], linewidth=linewidth, color=color, alpha=transparency, label=label)
-            if label is not None:
-                axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
-            j = j + 1
-        title = key.replace('+', '\n+')
-        axs[0,i].set_title(title)
-        i = i + 1
-    axs[0,0].plot(xlabels_nonscores[-last:], np.stack(scores).max(axis=1)[-last:],linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
+    axs[0,0].plot(xlabels_nonscores[-last:], np.stack(scores)[-last:,1],linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
     axs[0,0].set_title("scores")
     plt.ylim([low_clip, high_clip])
     fig.supxlabel('Time')
@@ -190,9 +161,9 @@ if __name__ == "__main__":
         axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
         try:
-            axs[1,0].plot(forecasts_zoomed[1],linewidth=linewidth,alpha=transparency,color='green', label="forecast")
+            axs[1,0].plot(forecasts_zoomed[1].to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         except:
-            axs[1,0].plot(forecasts_zoomed,linewidth=linewidth,alpha=transparency,color='green', label="forecast")
+            axs[1,0].plot(forecasts_zoomed.to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         axs[1,0].legend()
         axs[0,0].set_title("y")
         plt.ylim([y_clip_low, y_clip_high])
@@ -236,9 +207,9 @@ if __name__ == "__main__":
         axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
         try:
-            axs[1,0].plot(forecasts_zoomed[1],linewidth=linewidth,alpha=transparency,color='green', label="forecast")
+            axs[1,0].plot(forecasts_zoomed[1].to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         except:
-            axs[1,0].plot(forecasts_zoomed,linewidth=linewidth,alpha=transparency,color='green', label="forecast")
+            axs[1,0].plot(forecasts_zoomed.to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         axs[1,0].legend()
         axs[0,0].set_title("y")
         plt.ylim([y_clip_low, y_clip_high])

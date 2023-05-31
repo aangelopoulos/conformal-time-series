@@ -2,7 +2,7 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
 import numpy as np
 import pandas as pd
-from core import standard_weighted_quantile, trailing_window, aci, quantile, quantile_integrator_log, quantile_integrator_log_scorecaster
+from core import standard_weighted_quantile, trailing_window, aci, quantile, quantile_integrator_log, quantile_integrator_log_scorecaster, quantile_integrator_log_momentum
 from core.synthetic_scores import generate_scores
 from core.model_scores import generate_forecasts
 from datasets import load_dataset
@@ -95,6 +95,8 @@ if __name__ == "__main__":
             fn = quantile
         elif method == "Quantile+Integrator (log)":
             fn = quantile_integrator_log
+        elif method == "Quantile+Integrator (log)+Momentum":
+            fn = quantile_integrator_log_momentum
         elif method == "Quantile+Integrator (log)+Scorecaster":
             fn = quantile_integrator_log_scorecaster
         lrs = args['methods'][method]['lrs']
@@ -108,8 +110,11 @@ if __name__ == "__main__":
         for lr in lrs:
             if asymmetric:
                 stacked_scores = np.stack(data['scores'].to_list())
-                q = [fn(stacked_scores[:,0], args['alpha']/2, lr, **kwargs)['q'], fn(stacked_scores[:,1], args['alpha']/2, lr, **kwargs)['q']]
-                q = [ np.array([q[0][i], q[1][i]]) for i in range(len(q[0])) ]
+                kwargs['upper'] = False
+                q0 = fn(stacked_scores[:,0], args['alpha']/2, lr, **kwargs)['q']
+                kwargs['upper'] = True
+                q1 = fn(stacked_scores[:,1], args['alpha']/2, lr, **kwargs)['q']
+                q = [ np.array([q0[i], q1[i]]) for i in range(len(q0)) ]
             else:
                 q = fn(data['scores'].to_numpy(), args['alpha'], lr, **kwargs)
             sets = [ set_function(data['forecasts'].to_numpy()[i], q[i]) for i in range(len(q)) ]
