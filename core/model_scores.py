@@ -26,7 +26,7 @@ def generate_forecasts(
     forecasts = np.zeros((T,))
     arima_fit = None
     order = kwargs["order"]
-    y = data['y'] if not log else np.log(data['y'])
+    y = data['y'].interpolate().to_numpy() if not log else np.log(data['y'].interpolate().to_numpy())
 
     # Generate the forecasts
     print("Generating forecasts...")

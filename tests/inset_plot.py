@@ -84,15 +84,15 @@ if __name__ == '__main__':
     # Extract time series data using provided keys and learning rates
     quantiles_given = data['quantiles_given']
     T_burnin = data['T_burnin']
-    sets1 = [np.stack(data[args.key1][args.lr1]['sets'])[1:,0], np.stack(data[args.key1][args.lr1]['sets'])[1:,1]]
-    sets2 = [np.stack(data[args.key2][args.lr2]['sets'])[1:,0], np.stack(data[args.key2][args.lr2]['sets'])[1:,1]]
+    sets1 = [np.stack(data[args.key1][args.lr1]['sets'])[T_burnin+1:,0], np.stack(data[args.key1][args.lr1]['sets'])[T_burnin+1:,1]]
+    sets2 = [np.stack(data[args.key2][args.lr2]['sets'])[T_burnin+1:,0], np.stack(data[args.key2][args.lr2]['sets'])[T_burnin+1:,1]]
     forecasts = data['forecasts']
     asymmetric = data['asymmetric']
     # if forecasts is a list, clip off the last element of each. otherwise, clip off the last element of the array
-    forecasts = [f[:-1] for f in forecasts] if isinstance(forecasts, list) else forecasts[:-1]
+    forecasts = [f[T_burnin+1:] for f in forecasts] if isinstance(forecasts, list) else forecasts[:-1]
     alpha = data['alpha']
-    scores = data['scores']
-    y = data['data']['y'].to_numpy().astype(float)[:-1]
+    scores = data['scores'][T_burnin+1]
+    y = data['data']['y'].to_numpy().astype(float)[T_burnin+1:]
 
     covered1 = moving_average(((y >= sets1[0]) & (y <= sets1[1])).astype(float), args.coverage_average_length)
     covered2 = moving_average(((y >= sets2[0]) & (y <= sets2[1])).astype(float), args.coverage_average_length)

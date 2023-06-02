@@ -11,11 +11,11 @@ def load_dataset(name):
         df = df.drop("Unnamed: 0", axis='columns')
         data = df.melt(id_vars=['timestamp'], value_name='target')
         data.rename({'variable': 'item_id'}, axis='columns', inplace=True)
-    if name == "ms-stock":
-        df = pd.read_csv('./datasets/ms-stock.csv')
+    if name == "MSFT":
+        df = pd.read_csv('./datasets/djia.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')
-        df.rename({'Date': 'timestamp'}, axis='columns', inplace=True)
-        df['item_id'] = 'y'
+        df.rename({'Date': 'timestamp', 'Name': 'item_id'}, axis='columns', inplace=True)
+        df.replace({'item_id': {'MSFT': 'y'}}, inplace=True)
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
         data.drop("variable", axis='columns', inplace=True)
     if name == "AMZN":
@@ -25,7 +25,6 @@ def load_dataset(name):
         df.replace({'item_id': {'AMZN': 'y'}}, inplace=True)
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
         data.drop("variable", axis='columns', inplace=True)
-        data = data.interpolate()
     if name == "GOOGL":
         df = pd.read_csv('./datasets/djia.csv')
         df = df.drop(["High", "Low", "Close", "Volume"], axis='columns')
@@ -33,7 +32,6 @@ def load_dataset(name):
         df.replace({'item_id': {'GOOGL': 'y'}}, inplace=True)
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
         data.drop("variable", axis='columns', inplace=True)
-        data = data.interpolate()
     if name == "COVID-national-cases-1wk":
         cases_data = pd.read_csv('./datasets/cases.csv')
         cases_data = cases_data[(cases_data.forecaster == 'COVIDhub-4_week_ensemble')][['actual', 'target_end_date']]
@@ -70,13 +68,14 @@ def load_dataset(name):
     if name == "M4":
         data = pd.read_csv("https://autogluon.s3.amazonaws.com/datasets/timeseries/m4_hourly_subset/train.csv")
     data = data.pivot(columns="item_id", index="timestamp", values="target")
+    data['y'] = data['y'].astype(float)
+    data = data.interpolate()
     data.index = pd.to_datetime(data.index)
     return data
 
 if __name__ == "__main__":
     # Iterate through all the datasets and attempt loading them
-    #datasets = ['daily-climate', 'ms-stock', 'AMZN', 'GOOGL', 'COVID-national-cases-1wk', 'COVID-national-cases-4wk', 'elec2', 'M4']
-    datasets = ['M4']
+    datasets = ['daily-climate', 'ms-stock', 'AMZN', 'GOOGL', 'COVID-national-cases-1wk', 'COVID-national-cases-4wk', 'elec2', 'M4']
     for dataset in datasets:
         print(f"Loading {dataset} dataset")
         data = load_dataset(dataset)

@@ -1,20 +1,20 @@
 real: True
 quantiles_given: False
 multiple_series: False 
-T_burnin: 100 
+T_burnin: 500 
 alpha: 0.1
-seasonal_period: 5 
+seasonal_period: 365
 score_function_name: "signed-residual"
 sequences:
   0:
-    dataset: "AMZN"
-    fit_every: 15 
-    log: True
+    dataset: "daily-climate"
+    fit_every: 1 
+    log: False
     order:
       - 3 
       - 0
-      - 0 
-    window_length: 100 
+      - 0
+    window_length: 10 
     overwrite: False 
 methods:
   Trail:
@@ -25,31 +25,31 @@ methods:
       - 0.05
       - 0.01
       - 0.005
-      - 0.0
+      - 0.0001
     window_length: 10000000 
   Quantile:
     lrs:
-      - 40 
-      - 20 
-      - 5 
       - 1 
-      - 0.1 
+      - 0.2
+      - 0.05
+      - 0.01
+      - 0.001
   Quantile+Integrator (log):
     lrs:
-      - 40 
-      - 20 
-      - 5 
       - 1 
-      - 0.1 
-    Csat: 1 
-    KI: 200 
+      - 0.2
+      - 0.05
+      - 0.01
+      - 0.001
+    Csat: 5 
+    KI: 10 
   Quantile+Integrator (log)+Scorecaster:
     lrs:
-      - 40 
-      - 20 
-      - 5 
       - 1 
-      - 0.1 
-    Csat: 1 
-    KI: 200 
-    steps_ahead: 1
+      - 0.2
+      - 0.05
+      - 0.01
+      - 0.001
+    Csat: 5 
+    KI: 10 
+    steps_ahead: 1 

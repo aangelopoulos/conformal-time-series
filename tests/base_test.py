@@ -68,6 +68,7 @@ if __name__ == "__main__":
         # Compute scores
         data['scores'] = [ score_function(y, forecast) for y, forecast in zip(data['y'], data['forecasts']) ]
     else:
+        scores_list = []
         for key in args['sequences'].keys():
             scores_list += [generate_scores(**args['sequences'][key])]
         scores = np.concatenate(scores_list).astype(float)
@@ -116,8 +117,12 @@ if __name__ == "__main__":
                 q1 = fn(stacked_scores[:,1], args['alpha']/2, lr, **kwargs)['q']
                 q = [ np.array([q0[i], q1[i]]) for i in range(len(q0)) ]
             else:
-                q = fn(data['scores'].to_numpy(), args['alpha'], lr, **kwargs)
-            sets = [ set_function(data['forecasts'].to_numpy()[i], q[i]) for i in range(len(q)) ]
+                kwargs['upper'] = True
+                q = fn(data['scores'].to_numpy(), args['alpha'], lr, **kwargs)['q']
+            if real_data:
+                sets = [ set_function(data['forecasts'].interpolate().to_numpy()[i], q[i]) for i in range(len(q)) ]
+            else:
+                sets = None
             results[method][lr] = { "q": q, "sets": sets }
 
     # Save some metadata

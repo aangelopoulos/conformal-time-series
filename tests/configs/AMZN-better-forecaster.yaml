@@ -8,7 +8,7 @@ score_function_name: "signed-residual"
 sequences:
   0:
     dataset: "AMZN"
-    fit_every: 15 
+    fit_every: 1 
     log: True
     order:
       - 3 
@@ -25,7 +25,7 @@ methods:
       - 0.05
       - 0.01
       - 0.005
-      - 0.0
+      - 0.0001
     window_length: 10000000 
   Quantile:
     lrs:

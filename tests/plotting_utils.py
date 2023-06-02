@@ -15,6 +15,9 @@ import pickle as pkl
 import seaborn as sns
 import pdb
 
+def is_listlike(l):
+    return isinstance(l, (pd.Series, list, np.ndarray))
+
 def desaturate_color(color, amount=0.5, saturation=None):
     """
     Desaturates the given color by multiplying (1-saturation) by the given amount.

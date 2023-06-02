@@ -14,7 +14,7 @@ sequences:
       - 3 
       - 0
       - 0
-    window_length: 60 
+    window_length: 100 
     overwrite: False 
 methods:
   Trail:

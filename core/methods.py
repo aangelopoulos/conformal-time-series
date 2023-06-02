@@ -220,7 +220,7 @@ def quantile_integrator_log_scorecaster(
     for t in tqdm(range(T_test)):
         if t > T_burnin:
             curr_steps_ahead = min(t+steps_ahead, T_test) - t
-            curr_scores = scores[:t]
+            curr_scores = np.nan_to_num(scores[:t])
             if train_model and (t - T_burnin - 1) % steps_ahead == 0:
                 model = ThetaModel(
                         curr_scores.astype(float),

@@ -7,15 +7,15 @@ seasonal_period: 5
 score_function_name: "signed-residual"
 sequences:
   0:
-    dataset: "ms-stock"
-    fit_every: 15
+    dataset: "GOOGL"
+    fit_every: 1
     log: True
     order:
       - 3 
       - 0
       - 0
-    window_length: 50 
-    overwrite: True 
+    window_length: 100 
+    overwrite: False 
 methods:
   Trail:
     weight_length: 50 
@@ -29,27 +29,27 @@ methods:
     window_length: 10000000 
   Quantile:
     lrs:
+      - 40 
+      - 20 
       - 5 
-      - 2
       - 1 
       - 0.1 
-      - 0.01
   Quantile+Integrator (log):
     lrs:
+      - 40 
+      - 20 
       - 5 
-      - 2
       - 1 
       - 0.1 
-      - 0.01
     Csat: 1 
     KI: 200 
   Quantile+Integrator (log)+Scorecaster:
     lrs:
+      - 40 
+      - 20 
       - 5 
-      - 2
       - 1 
       - 0.1 
-      - 0.01
     Csat: 1 
     KI: 200 
-    steps_ahead: 10 
+    steps_ahead: 1 

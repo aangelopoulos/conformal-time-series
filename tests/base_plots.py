@@ -37,6 +37,7 @@ if __name__ == "__main__":
     if real_data:
         forecasts = results["forecasts"]
         data = results["data"]
+        listlike_forecast = is_listlike(forecasts[0])
         del results["forecasts"]
         del results["data"]
         try:
@@ -64,10 +65,13 @@ if __name__ == "__main__":
     coverages = {}
     for key in results.keys():
         for lr in list(results[key].keys()):
-            results[key][lr]["covered"] = (
-                      (np.stack(results[key][lr]["sets"][T_burnin+1:])[:,0] <= data['y'][T_burnin+1:]) \
-                    & (np.stack(results[key][lr]["sets"][T_burnin+1:])[:,1] >= data['y'][T_burnin+1:]) \
-                )
+            if real_data:
+                results[key][lr]["covered"] = (
+                          (np.stack(results[key][lr]["sets"][T_burnin+1:])[:,0] <= data['y'][T_burnin+1:]) \
+                        & (np.stack(results[key][lr]["sets"][T_burnin+1:])[:,1] >= data['y'][T_burnin+1:]) \
+                    )
+            else:
+                results[key][lr]["covered"] = results[key][lr]["q"][T_burnin+1:] >= scores[T_burnin+1:]
         coverages[key] = { lr : results[key][lr]["covered"].astype(int).mean() for lr in list(results[key].keys()) }
     print(coverages)
 
@@ -97,28 +101,33 @@ if __name__ == "__main__":
     plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
     plt.savefig(plots_folder + "coverage.pdf")
 
-    # Size plots (zoomed in)!
+    # Size plots (zoomed in)! Only visualize the 'upper' score, i.e., the last one in the array.
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
-    # Make plots
+    # Plot setup
     last = 100
     i = 1
-    low_clip = np.nanmin(np.stack(scores)[-last:,1]) * 0.9
-    high_clip = np.nanmax(np.stack(scores)[-last:,1]) * 1.1
+    upper_scores = np.stack(scores)[-last:,-1] if len(np.stack(scores).shape) > 1 else scores[-last:]
+    low_clip = np.nanmin(np.stack(upper_scores)[-last:]) * 0.9
+    high_clip = np.nanmax(np.stack(upper_scores)[-last:]) * 1.1
+    # Loop through methods
     for key in results.keys():
         color = cmap_lines[i-1]
         j = 0
         for lr in results[key].keys():
-            quantiles = np.clip(np.stack(results[key][lr]["q"])[-last:,1], low_clip, high_clip)
-            axs[j,i].plot(xlabels_nonscores[-last:], np.stack(scores)[-last:,1],linewidth=linewidth,alpha=transparency/4,color=cmap_lines[-1])
+            # Get the quantiles
+            upper_quantiles = np.stack(results[key][lr]["q"])[-last:,-1] if len(scores.shape) > 1 else results[key][lr]["q"][-last:]
+            upper_quantiles = np.clip(upper_quantiles, low_clip, high_clip)[-last:]
+            # Plot the scores and quantiles
+            axs[j,i].plot(xlabels_nonscores[-last:], upper_scores,linewidth=linewidth,alpha=transparency/4,color=cmap_lines[-1])
             label = f"lr={lr}" if lr is not None else None
-            axs[j,i].plot(xlabels_nonscores[-last:], quantiles[-last:], linewidth=linewidth, color=color, alpha=transparency, label=label)
+            axs[j,i].plot(xlabels_nonscores[-last:], upper_quantiles, linewidth=linewidth, color=color, alpha=transparency, label=label)
             if label is not None:
                 axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
             j = j + 1
         title = key.replace('+', '\n+').replace('(log)', '')
         axs[0,i].set_title(title)
         i = i + 1
-    axs[0,0].plot(xlabels_nonscores[-last:], np.stack(scores)[-last:,1],linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
+    axs[0,0].plot(xlabels_nonscores[-last:], upper_scores,linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
     axs[0,0].set_title("scores")
     plt.ylim([low_clip, high_clip])
     fig.supxlabel('Time')
@@ -131,9 +140,9 @@ if __name__ == "__main__":
     if real_data:
         sns.set_theme(context="notebook", palette=cmap_lines, style="white", font_scale=4)
         sns.set_style({'axes.spines.right': False, 'axes.spines.top': False})
-        try:
+        if listlike_forecast:
             forecasts_zoomed = [forecast[-last:] for forecast in forecasts]
-        except:
+        else:
             forecasts_zoomed = forecasts[-last:]
         y_zoomed = data['y'].to_numpy().astype(float)[-last:]
         fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
@@ -158,11 +167,11 @@ if __name__ == "__main__":
             title = key.replace('+', '\n+')
             axs[0,i].set_title(title)
             i = i + 1
-        axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
+        axs[0,0].plot(np.arange(y_zoomed.shape[0]),y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
-        try:
+        if listlike_forecast:
             axs[1,0].plot(np.array(forecasts_zoomed[1]),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
-        except:
+        else:
             axs[1,0].plot(forecasts_zoomed.to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         axs[1,0].legend()
         axs[0,0].set_title("y")
@@ -177,9 +186,9 @@ if __name__ == "__main__":
     if real_data:
         sns.set_theme(context="notebook", palette=cmap_lines, style="white", font_scale=4)
         sns.set_style({'axes.spines.right': False, 'axes.spines.top': False})
-        try:
+        if listlike_forecast:
             forecasts_zoomed = [forecast[T_burnin+1:] for forecast in forecasts]
-        except:
+        else:
             forecasts_zoomed = forecasts[T_burnin+1:]
         y_zoomed = data['y'].to_numpy().astype(float)[T_burnin+1:]
         fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
@@ -206,9 +215,9 @@ if __name__ == "__main__":
             i = i + 1
         axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
-        try:
+        if listlike_forecast:
             axs[1,0].plot(np.array(forecasts_zoomed[1]),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
-        except:
+        else:
             axs[1,0].plot(forecasts_zoomed.to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         axs[1,0].legend()
         axs[0,0].set_title("y")
