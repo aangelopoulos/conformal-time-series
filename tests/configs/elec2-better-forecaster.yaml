@@ -1,7 +1,7 @@
 real: True
 quantiles_given: False
 multiple_series: False 
-T_burnin: 100 
+T_burnin: 300 
 alpha: 0.1
 seasonal_period: 48
 score_function_name: "signed-residual"

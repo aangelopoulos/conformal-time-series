@@ -107,15 +107,15 @@ if __name__ == "__main__":
     last = 100
     i = 1
     upper_scores = np.stack(scores)[-last:,-1] if len(np.stack(scores).shape) > 1 else scores[-last:]
-    low_clip = np.nanmin(np.stack(upper_scores)[-last:]) * 0.9
-    high_clip = np.nanmax(np.stack(upper_scores)[-last:]) * 1.1
+    low_clip = np.nanmin(upper_scores) * 0.9
+    high_clip = np.nanmax(upper_scores) * 1.1
     # Loop through methods
     for key in results.keys():
         color = cmap_lines[i-1]
         j = 0
         for lr in results[key].keys():
             # Get the quantiles
-            upper_quantiles = np.stack(results[key][lr]["q"])[-last:,-1] if len(scores.shape) > 1 else results[key][lr]["q"][-last:]
+            upper_quantiles = np.stack(results[key][lr]["q"])[-last:,-1] if len(np.stack(scores).shape) > 1 else results[key][lr]["q"][-last:]
             upper_quantiles = np.clip(upper_quantiles, low_clip, high_clip)[-last:]
             # Plot the scores and quantiles
             axs[j,i].plot(xlabels_nonscores[-last:], upper_scores,linewidth=linewidth,alpha=transparency/4,color=cmap_lines[-1])
@@ -128,12 +128,12 @@ if __name__ == "__main__":
         axs[0,i].set_title(title)
         i = i + 1
     axs[0,0].plot(xlabels_nonscores[-last:], upper_scores,linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
-    axs[0,0].set_title("scores")
+    axs[0,0].set_title('Scores')
     plt.ylim([low_clip, high_clip])
     fig.supxlabel('Time')
     fig.supylabel(r'$q_t$')
     plt.tight_layout(pad=0.05)
-    plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2)
+    plt.subplots_adjust(left=0.07, bottom=0.07, right=0.95, wspace=0.2, hspace=0.1)
     plt.savefig(plots_folder + "size_zoomed.pdf")
 
     # Plot sets (zoomed)
