@@ -4,6 +4,7 @@ multiple_series: False
 T_burnin: 10 
 alpha: 0.2
 score_function_name: "cqr-asymmetric"
+ahead: 4
 sequences:
   0:
     dataset: "COVID-national-cases-4wk"

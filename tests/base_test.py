@@ -26,6 +26,7 @@ if __name__ == "__main__":
     quantiles_given = args['quantiles_given']
     multiple_series = args['multiple_series']
     score_function_name = args['score_function_name'] if real_data else "synthetic"
+    ahead = args['ahead'] if real_data else 1
     asymmetric = False
 
     # Initialize the score function
@@ -121,6 +122,8 @@ if __name__ == "__main__":
                 q = fn(data['scores'].to_numpy(), args['alpha'], lr, **kwargs)['q']
             if real_data:
                 sets = [ set_function(data['forecasts'].interpolate().to_numpy()[i], q[i]) for i in range(len(q)) ]
+                if ahead > 1:
+                    sets = [ sets[0][ahead-1:], sets[1][ahead-1:] ]
             else:
                 sets = None
             results[method][lr] = { "q": q, "sets": sets }
