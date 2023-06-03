@@ -63,7 +63,7 @@ def moving_average(x, window=50):
     norm_factor = window / np.convolve( np.ones_like(x), np.ones(window), 'same' ) # Deal with edge effects
     return norm_factor * (np.convolve(x, np.ones(window), 'same') / window)
 
-def plot_time_series(fig, axs, time_series_list, window_start, window_end, window_loc, sets, T_burnin, y, color, hline=None):
+def plot_time_series(fig, axs, time_series_list, window_start, window_end, window_loc, sets, T_burnin, y, color, inset, hline=None):
     # Create a figure and a grid of subplots
     all_axins = []
     # Get the minimum and maximum values for the axes and axins
@@ -97,47 +97,47 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, windo
             ax.axhline(hline, color='#888888', linestyle='--', linewidth=1)
         sns.despine(ax=ax)  # Despine the top and right axes
 
-        # Define the inset ax in the lower right corner
-        if window_loc == 'lower right':
-            axins = ax.inset_axes([0.6,0.05,0.4,0.4])
-        elif window_loc == 'upper right':
-            axins = ax.inset_axes([0.6,0.6,0.4,0.4])
-        #axins = inset_axes(ax, width="40%", height="40%", loc='lower center', borderpad=2)
+        if inset:
+            # Define the inset ax in the lower right corner
+            if window_loc == 'lower right':
+                axins = ax.inset_axes([0.6,0.05,0.4,0.4])
+            elif window_loc == 'upper right':
+                axins = ax.inset_axes([0.6,0.6,0.4,0.4])
 
-        # Give the inset a different background color
-        axins.set_facecolor('whitesmoke')
+            # Give the inset a different background color
+            axins.set_facecolor('whitesmoke')
 
-        # On the inset ax, plot the same time series but only the window of interest
-        if not sets:
-            sns.lineplot(x=time_series[window_start:window_end].index, y=time_series[window_start:window_end], ax=axins, color=color)
-        else:
-            cvds = (time_series[0][window_start:window_end] <= y[window_start:window_end]) & (time_series[1][window_start:window_end] >= y[window_start:window_end])
-            axins.fill_between(np.arange(y.shape[0])[window_start:window_end], np.clip(time_series[0][window_start:window_end], minval_axins, maxval_axins), np.clip(time_series[1][window_start:window_end], minval_axins, maxval_axins), color=color)
-            axins.plot(np.arange(y.shape[0])[window_start:window_end], y[window_start:window_end], color='black', alpha=0.3, linewidth=1)
+            # On the inset ax, plot the same time series but only the window of interest
+            if not sets:
+                sns.lineplot(x=time_series[window_start:window_end].index, y=time_series[window_start:window_end], ax=axins, color=color)
+            else:
+                cvds = (time_series[0][window_start:window_end] <= y[window_start:window_end]) & (time_series[1][window_start:window_end] >= y[window_start:window_end])
+                axins.fill_between(np.arange(y.shape[0])[window_start:window_end], np.clip(time_series[0][window_start:window_end], minval_axins, maxval_axins), np.clip(time_series[1][window_start:window_end], minval_axins, maxval_axins), color=color)
+                axins.plot(np.arange(y.shape[0])[window_start:window_end], y[window_start:window_end], color='black', alpha=0.3, linewidth=1)
 
-        if hline is not None:
-            axins.axhline(hline, color='#888888', linestyle='--', linewidth=1)
+            if hline is not None:
+                axins.axhline(hline, color='#888888', linestyle='--', linewidth=1)
 
-        box_color = "#dcd9d9"
-        for axis in ['top','bottom','left','right']:
-            axins.spines[axis].set_linewidth(2)
-            axins.spines[axis].set_color(box_color)
+            box_color = "#dcd9d9"
+            for axis in ['top','bottom','left','right']:
+                axins.spines[axis].set_linewidth(2)
+                axins.spines[axis].set_color(box_color)
 
-        # Draw a box of the region of the inset axes in the parent axes and
-        # connecting lines between the box and the inset axes area
-        mark_inset(ax, axins, loc1=1, loc2=2, fc="none", ec=box_color, lw=2)
+            # Draw a box of the region of the inset axes in the parent axes and
+            # connecting lines between the box and the inset axes area
+            mark_inset(ax, axins, loc1=1, loc2=2, fc="none", ec=box_color, lw=2)
 
-        # Apply auto ticks on the inset
-        axins.xaxis.set_visible(True)
-        axins.yaxis.set_visible(True)
+            # Apply auto ticks on the inset
+            axins.xaxis.set_visible(True)
+            axins.yaxis.set_visible(True)
 
-        axins.set_xticklabels([])
-        axins.set_xticks([])
-        axins.set_yticklabels([])
-        axins.set_yticks([])
+            axins.set_xticklabels([])
+            axins.set_xticks([])
+            axins.set_yticklabels([])
+            axins.set_yticks([])
 
-        all_axins += [axins]
+            all_axins += [axins]
 
-    # Set ymin and ymax for insets
-    for axin in all_axins:
-        axin.set_ylim(minval_axins-0.1*np.abs(minval_axins), maxval_axins + 0.1*np.abs(maxval_axins))
+        # Set ymin and ymax for insets
+        for axin in all_axins:
+            axin.set_ylim(minval_axins-0.1*np.abs(minval_axins), maxval_axins + 0.1*np.abs(maxval_axins))

@@ -14,10 +14,10 @@ import pdb
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mtick
 
-def plot_everything(coverages_list, sets_list, titles_list, y, alpha, T_burnin, window_start, window_end, window_loc, savename):
+def plot_everything(coverages_list, sets_list, titles_list, y, alpha, T_burnin, window_start, window_end, window_loc, coverage_inset, set_inset, savename):
     fig, axs = plt.subplots(nrows=2, ncols=len(coverages_list), figsize=(10 * len(coverages_list), 6), sharex=True, sharey=False)
-    plot_time_series(fig, axs[0,:], coverages_list, window_start, window_end, window_loc, False, T_burnin, y, "#138085", hline=1-alpha )
-    plot_time_series(fig, axs[1,:], sets_list, window_start, window_end, window_loc, True, T_burnin, y, "#EEB362")
+    plot_time_series(fig, axs[0,:], coverages_list, window_start, window_end, window_loc, False, T_burnin, y, "#138085", coverage_inset, hline=1-alpha )
+    plot_time_series(fig, axs[1,:], sets_list, window_start, window_end, window_loc, True, T_burnin, y, "#EEB362", set_inset)
     axs[0,0].set_ylabel('Coverage', fontsize=20)
     axs[1,0].set_ylabel('Sets', fontsize=20)
     axs[0,0].set_title(titles_list[0], fontsize=20)
@@ -54,15 +54,17 @@ def plot_everything(coverages_list, sets_list, titles_list, y, alpha, T_burnin, 
 if __name__ == '__main__':
     # Create argument parser
     parser = argparse.ArgumentParser(description='Plot time series data.')
-    parser.add_argument('filename', help='Path to pickle file containing time series data.')
-    parser.add_argument('key1', help='First key for time series data extraction.')
-    parser.add_argument('lr1', help='Learning rate associated with first key.', type=float)
-    parser.add_argument('key2', help='Second key for time series data extraction.')
-    parser.add_argument('lr2', help='Learning rate associated with second key.', type=float)
-    parser.add_argument('window_length', help='Length of inset window.', default=60, type=int)
-    parser.add_argument('window_start', help='Start of inset window.', default=None, type=int)
-    parser.add_argument('window_loc', help='Location of inset window.', default='upper right', type=str)
-    parser.add_argument('coverage_average_length', help='Length of moving average window for coverage.', default=50, type=int)
+    parser.add_argument('--filename', help='Path to pickle file containing time series data.')
+    parser.add_argument('--key1', help='First key for time series data extraction.')
+    parser.add_argument('--lr1', help='Learning rate associated with first key.', type=float)
+    parser.add_argument('--key2', help='Second key for time series data extraction.')
+    parser.add_argument('--lr2', help='Learning rate associated with second key.', type=float)
+    parser.add_argument('--window_length', help='Length of inset window.', default=60, type=int)
+    parser.add_argument('--window_start', help='Start of inset window.', default=None, type=int)
+    parser.add_argument('--window_loc', help='Location of inset window.', default='upper right', type=str)
+    parser.add_argument('--coverage_average_length', help='Length of moving average window for coverage.', default=50, type=int)
+    parser.add_argument('--coverage_inset', dest='coverage_inset', default=False, action='store_true')
+    parser.add_argument('--set_inset', dest='set_inset', default=False, action='store_true')
 
     method_title_map = {
         'ACI': 'ACI',
@@ -104,7 +106,7 @@ if __name__ == '__main__':
     window_start = args.window_start
     window_end = args.window_start + args.window_length
 
-    savename = datasetname + '_' + args.key1 + '_lr' + str(args.lr1) + '_' + args.key2 + '_lr' + str(args.lr2) + '_window' + str(args.window_length) + '_start' + str(args.window_start)
+    savename = datasetname + '_' + args.key1 + '_lr' + str(args.lr1) + '_' + args.key2 + '_lr' + str(args.lr2) + '_window' + str(args.window_length) + '_start' + str(args.window_start) + str(args.coverage_inset) + str(args.set_inset)
 
     # Call the plot_time_series function to plot the data
-    plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, T_burnin, window_start, window_end, args.window_loc, savename)
+    plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, T_burnin, window_start, window_end, args.window_loc, args.coverage_inset, args.set_inset, savename)

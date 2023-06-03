@@ -4,6 +4,7 @@ alpha: 0.2
 quantiles_given: True 
 multiple_series: False 
 score_function_name: "cqr-asymmetric"
+ahead: 1
 sequences:
   0:
     dataset: "COVID-national-cases-1wk"
@@ -33,7 +34,7 @@ methods:
       - 10000 
       - 1000 
       - 100 
-    Csat: 0.05 
+    Csat: 0.1 
     KI: 200000 
   Quantile+Integrator (log)+Scorecaster:
     lrs:
@@ -42,6 +43,6 @@ methods:
       - 10000 
       - 1000 
       - 100 
-    Csat: 0.05 
+    Csat: 0.1 
     KI: 200000 
     steps_ahead: 1 

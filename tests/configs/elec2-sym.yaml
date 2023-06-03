@@ -1,0 +1,64 @@
+real: True
+quantiles_given: False
+multiple_series: False 
+T_burnin: 300 
+alpha: 0.1
+seasonal_period: 48
+score_function_name: "absolute-residual"
+sequences:
+  0:
+    dataset: "elec2"
+    fit_every: 48 
+    log: False
+    order:
+      - 3 
+      - 0 
+      - 0
+    window_length: 80 
+    overwrite: False
+methods:
+  Trail:
+    weight_length: 50 
+  ACI:
+    lrs:
+      - 0.1
+      - 0.05
+      - 0.01
+      - 0.005
+      - 0.0001
+    window_length: 10000000 
+  Quantile:
+    lrs:
+      - 0.5
+      - 0.05
+      - 0.01
+      - 0.001
+      - 0.0001
+  Quantile+Integrator (log):
+    lrs:
+      - 0.5
+      - 0.05
+      - 0.01
+      - 0.001
+      - 0.0001
+    Csat: 5 
+    KI: 10 
+  Quantile+Integrator (log)+Momentum:
+    lrs:
+      - 0.5 
+      - 0.05
+      - 0.01
+      - 0.001
+      - 0.0001
+    Csat: 5
+    KI: 10 
+  Quantile+Integrator (log)+Scorecaster:
+    lrs:
+      - 0.5 
+      - 0.05
+      - 0.01
+      - 0.001
+      - 0.0001
+    Csat: 5
+    KI: 10 
+    steps_ahead: 1 
