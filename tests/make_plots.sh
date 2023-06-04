@@ -17,36 +17,16 @@
 # parser.add_argument('set_inset', help='Boolean for whether to plot inset for sets.', default=True, type=bool)
 
 # First set of inset plots compares ACI to Quantile tracker
-python inset_plot.py --filename results/AMZN-better-forecaster.pkl --key1 ACI --lr1 0.1 --key2 Quantile --lr2 20 --window_length 400 --window_start 1200 --window_loc 'lower right' --coverage_average_length 50 &
-python inset_plot.py --filename results/AMZN-better-forecaster.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 20 --window_length 400 --window_start 1200 --window_loc 'lower right' --coverage_average_length 50 &
-python inset_plot.py --filename results/AMZN-sym-better-forecaster.pkl --key1 ACI --lr1 0.1 --key2 Quantile --lr2 20 --window_length 400 --window_start 1200 --window_loc 'lower right' --coverage_average_length 50 &
-python inset_plot.py --filename results/AMZN-sym-better-forecaster.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 20 --window_length 400 --window_start 1200 --window_loc 'lower right' --coverage_average_length 50 &
-python inset_plot.py --filename results/AMZN-better-forecaster.pkl --key1 ACI --lr1 0.1 --key2 Quantile --lr2 20 --window_length 400 --window_start 1200 --window_loc 'lower right' --coverage_average_length 50 --set_inset &
-python inset_plot.py --filename results/AMZN-better-forecaster.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 20 --window_length 400 --window_start 1200 --window_loc 'lower right' --coverage_average_length 50 --set_inset &
-python inset_plot.py --filename results/AMZN-sym-better-forecaster.pkl --key1 ACI --lr1 0.1 --key2 Quantile --lr2 20 --window_length 400 --window_start 1200 --window_loc 'lower right' --coverage_average_length 50 --set_inset &
-python inset_plot.py --filename results/AMZN-sym-better-forecaster.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 20 --window_length 400 --window_start 1200 --window_loc 'lower right' --coverage_average_length 50 --set_inset &
+python inset_plot.py --filename results/AMZN-better-forecaster.pkl --key1 ACI --lr1 0.1 --key2 Quantile --lr2 20 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 &
+python inset_plot.py --filename results/AMZN-better-forecaster.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 20 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 &
+python inset_plot.py --filename results/AMZN-better-forecaster.pkl --key1 ACI --lr1 0.1 --key2 Quantile --lr2 20 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset &
+python inset_plot.py --filename results/AMZN-better-forecaster.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 20 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset &
 
 # Second set of inset plots compares Quantile tracker to Quantile+Integrator
-python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quantile --lr1 0.1 --key2 'Quantile+Integrator (log)' --lr2 0.1 --window_length 100 --window_start 200 --window_loc 'lower right' --coverage_average_length 50 &
-python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quantile --lr1 5 --key2 'Quantile+Integrator (log)' --lr2 5 --window_length 100 --window_start 200 --window_loc 'lower right' --coverage_average_length 50 &
-python inset_plot.py --filename results/GOOGL-sym-better-forecaster.pkl --key1 Quantile --lr1 0.1 --key2 'Quantile+Integrator (log)' --lr2 0.1 --window_length 100 --window_start 200 --window_loc 'lower right' --coverage_average_length 50 &
-python inset_plot.py --filename results/GOOGL-sym-better-forecaster.pkl --key1 Quantile --lr1 5 --key2 'Quantile+Integrator (log)' --lr2 5 --window_length 100 --window_start 200 --window_loc 'lower right' --coverage_average_length 50 &
-python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quantile --lr1 0.1 --key2 'Quantile+Integrator (log)' --lr2 0.1 --window_length 100 --window_start 200 --window_loc 'lower right' --coverage_average_length 50 --coverage_inset --set_inset &
-python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quantile --lr1 5 --key2 'Quantile+Integrator (log)' --lr2 5 --window_length 100 --window_start 200 --window_loc 'lower right' --coverage_average_length 50 --coverage_inset --set_inset &
-python inset_plot.py --filename results/GOOGL-sym-better-forecaster.pkl --key1 Quantile --lr1 0.1 --key2 'Quantile+Integrator (log)' --lr2 0.1 --window_length 100 --window_start 200 --window_loc 'lower right' --coverage_average_length 50 --coverage_inset --set_inset &
-python inset_plot.py --filename results/GOOGL-sym-better-forecaster.pkl --key1 Quantile --lr1 5 --key2 'Quantile+Integrator (log)' --lr2 5 --window_length 100 --window_start 200 --window_loc 'lower right' --coverage_average_length 50 --coverage_inset --set_inset &
+python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quantile --lr1 0.1 --key2 'Quantile+Integrator (log)' --lr2 0.1 --window_length 100 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 &
+python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quantile --lr1 20 --key2 'Quantile+Integrator (log)' --lr2 5 --window_length 100 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 &
+python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quantile --lr1 0.1 --key2 'Quantile+Integrator (log)' --lr2 0.1 --window_length 100 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset &
+python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quantile --lr1 20 --key2 'Quantile+Integrator (log)' --lr2 5 --window_length 100 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset &
 
 # Finally, compare Quantile+Integrator to Quantile+Integrator+Scorecaster
 python inset_plot.py --filename results/elec2.pkl --key1 ACI --lr1 0.1 --key2 'Quantile+Integrator (log)+Scorecaster' --lr2 0.01 --window_length 100 --window_start 1500 --window_loc 'lower right' --coverage_average_length 50 --set_inset &
-
-#python inset_plot.py results/AMZN-better-forecaster.pkl ACI 0.1 Quantile 20 400 1200 'lower right' 50 False False &
-#python inset_plot.py results/elec2.pkl ACI 0.1 Quantile+Integrator\ \(log\)+Scorecaster 0.01 100 1500 'lower right' 50 False True &
-#python inset_plot.py results/elec2-sym.pkl ACI 0.005 Quantile+Integrator\ \(log\)+Scorecaster 0.01 100 1500 'lower right' 50 True True &
-#python inset_plot.py results/elec2-sym.pkl ACI 0.1 Quantile+Integrator\ \(log\)+Scorecaster 0.01 100 1500 'lower right' 50 False True &
-#python inset_plot.py results/AMZN.pkl ACI 0.1 Quantile 20 400 1200 'lower right' 50 True True &
-#python inset_plot.py results/AMZN.pkl ACI 0.005 Quantile 20 400 1200 'lower right' 50 True True &
-#python inset_plot.py results/elec2.pkl Quantile 0.001 Quantile+Integrator\ \(log\) 0.001 100 500 'lower right' 50 True True &
-#python inset_plot.py results/elec2-sym.pkl Quantile 0.001 Quantile+Integrator\ \(log\) 0.001 100 500 'lower right' 50 True True &
-#python inset_plot.py results/COVID-national-cases-4wk.pkl Quantile+Integrator\ \(log\) 100000 Quantile+Integrator\ \(log\)+Scorecaster 100000 10 100 'upper right' 10 True True &
-#python inset_plot.py results/elec2.pkl Quantile 0.5 Quantile+Integrator\ \(log\) 0.5 100 500 'lower right' 50 True True &
-#python inset_plot.py results/elec2-sym.pkl Quantile 0.5 Quantile+Integrator\ \(log\) 0.5 100 500 'lower right' 50 True True &

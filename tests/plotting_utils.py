@@ -103,6 +103,8 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, windo
                 axins = ax.inset_axes([0.6,0.05,0.4,0.4])
             elif window_loc == 'upper right':
                 axins = ax.inset_axes([0.6,0.6,0.4,0.4])
+            elif window_loc == 'upper left':
+                axins = ax.inset_axes([0.05,0.6,0.4,0.4])
 
             # Give the inset a different background color
             axins.set_facecolor('whitesmoke')
