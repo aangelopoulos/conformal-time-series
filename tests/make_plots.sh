@@ -1,5 +1,5 @@
 # First write bash that iterates through all results and runs base_plots.py on them
-#for i in `find ./results -name '*.pkl'` ; do python base_plots.py $i & done
+for i in `find ./results -name '*.pkl'` ; do python base_plots.py $i & done
 
 # Next plot insets for various hand-chosen experimental settings.
 # The inset_plot.py script takes arguments from the following parser:

@@ -195,16 +195,6 @@ def quantile_integrator_log_scorecaster(
     qs = np.zeros((T_test,))
     forecasts = np.zeros((T_test,))
     adj = np.zeros((T_test,))
-    #if data is None: # Data is synthetic
-    #    data = pd.DataFrame({'timestamp': np.arange(scores.shape[0]), 'item_id': 'y', 'target': scores})
-    #if (data['timestamp'].dtype == str):
-    #    data['timestamp'] = pd.to_datetime(data['timestamp'])
-    #uq_timestamps = data['timestamp'].unique()
-    #data = data[data.item_id == 'y'].copy()
-    #data.drop('item_id', axis=1, inplace=True)
-    #data['target'] = scores # KLUGE: We are forecasting scores now
-    #data = data.astype({'target': 'float'})
-    #data = data.set_index('timestamp')
     seasonal_period = kwargs.get('seasonal_period')
     if seasonal_period is None:
         seasonal_period = 1
