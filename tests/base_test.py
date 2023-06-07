@@ -2,7 +2,7 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
 import numpy as np
 import pandas as pd
-from core import standard_weighted_quantile, trailing_window, aci, quantile, quantile_integrator_log, quantile_integrator_log_scorecaster, quantile_integrator_log_momentum
+from core import standard_weighted_quantile, trailing_window, aci, quantile, quantile_integrator_log, quantile_integrator_log_scorecaster
 from core.synthetic_scores import generate_scores
 from core.model_scores import generate_forecasts
 from datasets import load_dataset
@@ -67,7 +67,8 @@ if __name__ == "__main__":
             args['sequences'][0]['T_burnin'] = args['T_burnin']
             data['forecasts'] = generate_forecasts(data, data_savename, **args['sequences'][0])
         # Compute scores
-        data['scores'] = [ score_function(y, forecast) for y, forecast in zip(data['y'], data['forecasts']) ]
+        if 'scores' not in data.columns:
+            data['scores'] = [ score_function(y, forecast) for y, forecast in zip(data['y'], data['forecasts']) ]
     else:
         scores_list = []
         for key in args['sequences'].keys():
@@ -97,8 +98,6 @@ if __name__ == "__main__":
             fn = quantile
         elif method == "Quantile+Integrator (log)":
             fn = quantile_integrator_log
-        elif method == "Quantile+Integrator (log)+Momentum":
-            fn = quantile_integrator_log_momentum
         elif method == "Quantile+Integrator (log)+Scorecaster":
             fn = quantile_integrator_log_scorecaster
         lrs = args['methods'][method]['lrs']
@@ -107,6 +106,7 @@ if __name__ == "__main__":
         kwargs["data"] = data if real_data else None
         kwargs["seasonal_period"] = args["seasonal_period"] if "seasonal_period" in args.keys() else None
         kwargs["config_name"] = config_name
+        kwargs["ahead"] = ahead
         # Compute the results
         results[method] = {}
         for lr in lrs:
@@ -117,8 +117,6 @@ if __name__ == "__main__":
                 kwargs['upper'] = True
                 q1 = fn(stacked_scores[:,1], args['alpha']/2, lr, **kwargs)['q']
                 q = [ np.array([q0[i], q1[i]]) for i in range(len(q0)) ]
-                if real_data and ahead > 1:
-                    q[ahead-1:] = q[:-(ahead-1)]
             else:
                 kwargs['upper'] = True
                 q = fn(data['scores'].to_numpy(), args['alpha'], lr, **kwargs)['q']

@@ -105,7 +105,7 @@ if __name__ == "__main__":
     # Size plots (zoomed in)! Only visualize the 'upper' score, i.e., the last one in the array.
     fig, axs = plt.subplots(nrows=nrows, ncols=ncols+1, sharex=True, sharey=True, figsize = ((ncols + 1)*10.1, nrows*6.4))
     # Plot setup
-    last = 100
+    last = 50
     i = 1
     upper_scores = np.stack(scores)[-last:,-1] if len(np.stack(scores).shape) > 1 else scores[-last:]
     low_clip = np.nanmin(upper_scores) * 0.9
@@ -165,7 +165,7 @@ if __name__ == "__main__":
                 if label is not None:
                     axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                 j = j + 1
-            title = key.replace('+', '\n+')
+            title = key.replace('+', '\n+').replace('(log)', '')
             axs[0,i].set_title(title)
             i = i + 1
         axs[0,0].plot(np.arange(y_zoomed.shape[0]),y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
@@ -211,13 +211,15 @@ if __name__ == "__main__":
                 if label is not None:
                     axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                 j = j + 1
-            title = key.replace('+', '\n+')
+            title = key.replace('+', '\n+').replace('(log)', '')
             axs[0,i].set_title(title)
             i = i + 1
         axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
         axs[0,0].legend()
         if listlike_forecast:
-            axs[1,0].plot(np.array(forecasts_zoomed[1]),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
+            axs[1,0].plot(np.array([forecast[1] for forecast in forecasts]),linewidth=linewidth,alpha=transparency,color='green', label=r'$1-\alpha/2$ forecast')
+            axs[2,0].plot(np.array([forecast[0] for forecast in forecasts]),linewidth=linewidth,alpha=transparency,color='green', label=r'$\alpha/2$ forecast')
+            axs[2,0].legend()
         else:
             axs[1,0].plot(forecasts_zoomed.to_numpy(),linewidth=linewidth,alpha=transparency,color='green', label="forecast")
         axs[1,0].legend()

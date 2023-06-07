@@ -66,15 +66,16 @@ if __name__ == '__main__':
     parser.add_argument('--coverage_inset', dest='coverage_inset', default=False, action='store_true')
     parser.add_argument('--set_inset', dest='set_inset', default=False, action='store_true')
 
+    args = parser.parse_args()
+
     method_title_map = {
         'ACI': 'ACI',
-        'Quantile': 'Quantile tracker',
+        'Quantile': 'Quantile tracker' if args.lr1 != 0 else 'Base forecaster',
         'Quantile+Integrator (log)': 'Quantile tracker + Integrator',
         'Quantile+Integrator (log)+Scorecaster': 'Quantile tracker + Integrator + Scorecaster'
     }
 
     # Parse command line arguments
-    args = parser.parse_args()
 
     args.window_start = args.window_start if args.window_start is not None else -args.window_length
     datasetname = args.filename.split('/')[-1].split('.')[0]

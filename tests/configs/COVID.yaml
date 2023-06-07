@@ -1,13 +1,13 @@
 real: True
-T_burnin: 10 
-alpha: 0.2
 quantiles_given: True 
 multiple_series: False 
+T_burnin: 10 
+alpha: 0.2
 score_function_name: "cqr-asymmetric"
-ahead: 1
+ahead: 4
 sequences:
   0:
-    dataset: "COVID-national-cases-1wk"
+    dataset: "COVID"
     log: False
 methods:
   Trail:
@@ -22,27 +22,27 @@ methods:
     window_length: 100000 
   Quantile:
     lrs:
-      - 1000000 
-      - 100000 
-      - 10000 
-      - 1000 
-      - 100 
+      - 5000
+      - 1000
+      - 100
+      - 10
+      - 0 
   Quantile+Integrator (log):
     lrs:
-      - 1000000 
-      - 100000 
-      - 10000 
-      - 1000 
-      - 100 
-    Csat: 0.1 
-    KI: 200000 
+      - 5000
+      - 1000
+      - 100
+      - 10
+      - 0
+    Csat: 0.001 
+    KI: 10000 
   Quantile+Integrator (log)+Scorecaster:
     lrs:
-      - 1000000 
-      - 100000 
-      - 10000 
-      - 1000 
-      - 100 
-    Csat: 0.1 
-    KI: 200000 
+      - 5000
+      - 1000
+      - 100
+      - 10
+      - 0
+    Csat: 0.001 
+    KI: 10000 
     steps_ahead: 1 
