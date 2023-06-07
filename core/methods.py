@@ -178,9 +178,10 @@ def quantile_integrator_log_scorecaster(
         if 'scorecasts' in data.columns:
             scorecasts = np.array([s[int(upper)] for s in data['scorecasts'] ])
             train_model = False
-        os.makedirs('./.cache/scorecaster/', exist_ok=True)
-        scorecasts = np.load('./.cache/scorecaster/' + kwargs.get('config_name') + '_' + str(upper) + '.npy')
-        train_model = False
+        else:
+            os.makedirs('./.cache/scorecaster/', exist_ok=True)
+            scorecasts = np.load('./.cache/scorecaster/' + kwargs.get('config_name') + '_' + str(upper) + '.npy')
+            train_model = False
     except:
         pass
     sum_errors = 0
@@ -195,7 +196,8 @@ def quantile_integrator_log_scorecaster(
                         period=seasonal_period,
                         ).fit()
                 scorecasts[t:t+ahead] = model.forecast(ahead)
-            qs[t] = scorecasts[t] + adj[t] + saturation_fn_log(I, t_pred, Csat, KI, T_burnin)
+            qs[t] = adj[t] + saturation_fn_log(I, t_pred, Csat, KI, T_burnin)
+#scorecasts[t] + adj[t] + saturation_fn_log(I, t_pred, Csat, KI, T_burnin)
             covereds[t] = qs[t] >= scores[t]
             sum_errors += 1-covereds[t_pred]
             I = sum_errors - (t_pred-T_burnin)*alpha

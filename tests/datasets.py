@@ -32,8 +32,12 @@ def load_dataset(name):
         df.replace({'item_id': {'GOOGL': 'y'}}, inplace=True)
         data = df.melt(id_vars=['timestamp', 'item_id'], value_name='target')
         data.drop("variable", axis='columns', inplace=True)
-    if name == "COVID":
-        df = pd.read_pickle('./datasets/covid-ts-proc/proc_covid_data.pkl')
+    if name == "COVID-deaths4wk":
+        df = pd.read_pickle('./datasets/covid-ts-proc/proc_4wkdeaths.pkl')
+        df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
+        data = df
+    if name == "COVID-cases3wk":
+        df = pd.read_pickle('./datasets/covid-ts-proc/proc_3wkcases.pkl')
         df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
         data = df
     if name == "elec2":

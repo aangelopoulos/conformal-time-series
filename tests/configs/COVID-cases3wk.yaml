@@ -7,7 +7,7 @@ score_function_name: "cqr-asymmetric"
 ahead: 4
 sequences:
   0:
-    dataset: "COVID"
+    dataset: "COVID-cases3wk"
     log: False
 methods:
   Trail:
@@ -22,26 +22,26 @@ methods:
     window_length: 100000 
   Quantile:
     lrs:
+      - 500000
+      - 100000
+      - 50000
       - 5000
-      - 1000
-      - 100
-      - 10
       - 0 
   Quantile+Integrator (log):
     lrs:
+      - 500000
+      - 100000
+      - 50000
       - 5000
-      - 1000
-      - 100
-      - 10
       - 0
     Csat: 0.001 
     KI: 10000 
   Quantile+Integrator (log)+Scorecaster:
     lrs:
+      - 500000
+      - 100000
+      - 50000
       - 5000
-      - 1000
-      - 100
-      - 10
       - 0
     Csat: 0.001 
     KI: 10000 
