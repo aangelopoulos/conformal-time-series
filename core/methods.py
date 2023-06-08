@@ -103,17 +103,15 @@ def mytan(x):
     else:
         return np.tan(x)
 
-def saturation_fn_log(x, t, Csat, KI, T_burnin):
-    if t >= T_burnin:
-        return KI * mytan((x * np.log(t-T_burnin+1))/((Csat * t-T_burnin+100)))
-    else:
+def saturation_fn_log(x, t, Csat, KI):
+    if KI == 0:
         return 0
+    tan_out = mytan(x * np.log(t+1)/(Csat * (t+1)))
+    out = KI * tan_out
+    return  out
 
-def saturation_fn_sqrt(x, t, Csat, KI, T_burnin):
-    if t >= T_burnin:
-        return KI * mytan((x * np.sqrt(t-T_burnin+1))/((Csat * t-T_burnin+100)))
-    else:
-        return 0
+def saturation_fn_sqrt(x, t, Csat, KI):
+    return KI * mytan((x * np.sqrt(t+1))/((Csat * (t+1))))
 
 def quantile_integrator_log(
     scores,
@@ -146,7 +144,8 @@ def quantile_integrator_log(
             I = 0
         if t < T_test - 1:
             qhats[t+1] = qhats[t] + P
-            qs[t+1] = qhats[t+1] + saturation_fn_log(I, t_pred, Csat, KI, T_burnin)
+            integrator = saturation_fn_log(I, t_pred, Csat, KI) if t_pred > T_burnin else 0
+            qs[t+1] = qhats[t+1] + integrator
     results = {"method": "Quantile+Integrator (log)", "q" : qs}
     return results
 
@@ -160,54 +159,60 @@ def quantile_integrator_log_scorecaster(
     KI,
     upper,
     ahead,
+    integrate=True,
+    scorecast=True,
     *args,
     **kwargs
 ):
+    # Initialization
     T_test = scores.shape[0]
-    grads = np.zeros((T_test,))
     qs = np.zeros((T_test,))
+    qts = np.zeros((T_test,))
+    integrators = np.zeros((T_test,))
     scorecasts = np.zeros((T_test,))
     covereds = np.zeros((T_test,))
-    adj = np.zeros((T_test,))
     seasonal_period = kwargs.get('seasonal_period')
     if seasonal_period is None:
         seasonal_period = 1
-    train_model = True
+    # Load the scorecaster
     try:
         # If the data contains a scorecasts column, then use it!
         if 'scorecasts' in data.columns:
             scorecasts = np.array([s[int(upper)] for s in data['scorecasts'] ])
             train_model = False
         else:
-            os.makedirs('./.cache/scorecaster/', exist_ok=True)
             scorecasts = np.load('./.cache/scorecaster/' + kwargs.get('config_name') + '_' + str(upper) + '.npy')
             train_model = False
     except:
-        pass
-    sum_errors = 0
-    I = 0
+        train_model = True
+    # Run the main loop
     for t in tqdm(range(T_test)):
         t_pred = t - ahead + 1
-        if t > T_burnin:
+        if t_pred < 0:
+            continue # We haven't made any predictions yet
+        # First, observe y_t and calculate coverage
+        covereds[t] = qs[t] >= scores[t]
+        # Next, calculate the quantile update and saturation function
+        grad = alpha if covereds[t_pred] else -(1-alpha)
+        integrator = saturation_fn_log((1-covereds)[T_burnin:t_pred].sum() - (t_pred-T_burnin)*alpha, (t_pred-T_burnin), Csat, KI) if t_pred > T_burnin else 0
+        #if t == T_test//2 and lr == 100:
+        #    pdb.set_trace()
+        # Train and scorecast if necessary
+        if scorecast and train_model:
             curr_scores = np.nan_to_num(scores[:t_pred])
-            if train_model:
-                model = ThetaModel(
-                        curr_scores.astype(float),
-                        period=seasonal_period,
-                        ).fit()
-                scorecasts[t:t+ahead] = model.forecast(ahead)
-            qs[t] = adj[t] + saturation_fn_log(I, t_pred, Csat, KI, T_burnin)
-#scorecasts[t] + adj[t] + saturation_fn_log(I, t_pred, Csat, KI, T_burnin)
-            covereds[t] = qs[t] >= scores[t]
-            sum_errors += 1-covereds[t_pred]
-            I = sum_errors - (t_pred-T_burnin)*alpha
-            grad = alpha if covereds[t_pred] else -(1-alpha)
-            # Gradient descent step
-            if t < T_test - 1:
-                adj[t+1] = adj[t] - lr * grad
-        else:
-            qs[t+1] = scores[t]
+            model = ThetaModel(
+                    curr_scores.astype(float),
+                    period=seasonal_period,
+                    ).fit()
+            scorecasts[t+ahead] = model.forecast(ahead)
+        # Update the next quantile
+        if t < T_test - 1:
+            qts[t+1] = qts[t] - lr * grad
+            integrators[t+1] = integrator if integrate else 0
+            qs[t+1] = qts[t+1] + integrators[t+1]
+            if scorecast:
+                qs[t+1] += scorecasts[t+1]
     results = {"method": "Quantile+Integrator (log)+Scorecaster", "q" : qs}
-    if train_model:
+    if train_model and scorecast:
         np.save('./.cache/scorecaster/' + kwargs.get('config_name') + '_' + str(upper) + '.npy', scorecasts)
     return results

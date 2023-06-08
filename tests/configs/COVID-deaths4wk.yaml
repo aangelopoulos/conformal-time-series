@@ -34,7 +34,7 @@ methods:
       - 100
       - 10
       - 0
-    Csat: 0.001 
+    Csat: 0.72
     KI: 10000 
   Quantile+Integrator (log)+Scorecaster:
     lrs:
@@ -43,6 +43,6 @@ methods:
       - 100
       - 10
       - 0
-    Csat: 0.001 
+    Csat: 0.72 
     KI: 10000 
     steps_ahead: 1 
