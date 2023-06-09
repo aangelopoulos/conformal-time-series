@@ -27,6 +27,7 @@ if __name__ == "__main__":
     multiple_series = args['multiple_series']
     score_function_name = args['score_function_name'] if real_data else "synthetic"
     ahead = args['ahead'] if real_data and 'ahead' in args.keys() else 1
+    minsize = args['minsize'] if real_data and 'minsize' in args.keys() else 0
     asymmetric = False
 
     # Initialize the score function
@@ -122,6 +123,8 @@ if __name__ == "__main__":
                 q = fn(data['scores'].to_numpy(), args['alpha'], lr, **kwargs)['q']
             if real_data:
                 sets = [ set_function(data['forecasts'].interpolate().to_numpy()[i], q[i]) for i in range(len(q)) ]
+                # Make sure the set size is at least minsize by setting sets[j][0] = min(sets[j][0], sets[j][1]-minsize) and sets[j][1] = max(sets[j][1], sets[j][1]+minsize)
+                sets = [ np.array([np.minimum(sets[j][0], sets[j][1]-minsize), np.maximum(sets[j][1], sets[j][0]+minsize)]) for j in range(len(sets)) ]
             else:
                 sets = None
             results[method][lr] = { "q": q, "sets": sets }

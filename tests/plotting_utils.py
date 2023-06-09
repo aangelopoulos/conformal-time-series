@@ -60,10 +60,13 @@ def lighten_color(color, amount=0.5):
     return colorsys.hls_to_rgb(c[0], 1 - amount * (1 - c[1]), c[2])
 
 def moving_average(x, window=50):
-    norm_factor = window / np.convolve( np.ones_like(x), np.ones(window), 'same' ) # Deal with edge effects
-    return norm_factor * (np.convolve(x, np.ones(window), 'same') / window)
+    x = np.array(x)
+    ma = np.zeros(x.shape)
+    for i in range(x.shape[0]):
+        ma[i] = np.mean(x[max(0, i-window+1):i+1])
+    return ma
 
-def plot_time_series(fig, axs, time_series_list, window_start, window_end, window_loc, sets, T_burnin, y, color, inset, hline=None):
+def plot_time_series(fig, axs, time_series_list, window_start, window_end, window_loc, sets, y, color, inset, miscoverage_scatterplot, hline=None):
     # Create a figure and a grid of subplots
     all_axins = []
     # Get the minimum and maximum values for the axes and axins
@@ -73,13 +76,13 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, windo
     else:
         ts_list_finite = [ [np.where(np.isfinite(time_series[0]) & np.isfinite(time_series[1]), time_series[0], np.nan), np.where(np.isfinite(time_series[0]) & np.isfinite(time_series[1]), time_series[1], np.nan)] for time_series in time_series_list ]
     if not sets:
-        minval_ax = np.nanmin([ np.nanmin(time_series[T_burnin:]) for time_series in ts_list_finite ])
-        maxval_ax = np.nanmax([ np.nanmax(time_series[T_burnin:]) for time_series in ts_list_finite ])
+        minval_ax = np.nanmin([ np.nanmin(time_series) for time_series in ts_list_finite ])
+        maxval_ax = np.nanmax([ np.nanmax(time_series) for time_series in ts_list_finite ])
         minval_axins = np.nanmin([ np.nanmin(time_series[window_start:window_end]) for time_series in ts_list_finite ])
         maxval_axins = np.nanmax([ np.nanmax(time_series[window_start:window_end]) for time_series in ts_list_finite ])
     else:
-        minval_ax = np.nanmin([ np.nanmin(time_series[0][T_burnin:]) for time_series in ts_list_finite ])
-        maxval_ax = np.nanmax([ np.nanmax(time_series[1][T_burnin:]) for time_series in ts_list_finite ])
+        minval_ax = np.nanmin([ np.nanmin(time_series[0]) for time_series in ts_list_finite ])
+        maxval_ax = np.nanmax([ np.nanmax(time_series[1]) for time_series in ts_list_finite ])
         minval_axins = np.nanmin([ np.nanmin(time_series[0][window_start:window_end]) for time_series in ts_list_finite ])
         maxval_axins = np.nanmax([ np.nanmax(time_series[1][window_start:window_end]) for time_series in ts_list_finite ])
 
@@ -88,11 +91,13 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, windo
 
         # Use seaborn to plot the time series on the ax
         if not sets:
-            sns.lineplot(x=time_series.index[T_burnin:], y=time_series[T_burnin:], ax=ax, color=color)
+            sns.lineplot(x=time_series.index, y=time_series, ax=ax, color=color)
         else:
             cvds = (time_series[0] <= y) & (time_series[1] >= y)
-            ax.fill_between(np.arange(y.shape[0])[T_burnin:], np.clip(time_series[0][T_burnin:], minval_ax, maxval_ax), np.clip(time_series[1][T_burnin:], minval_ax, maxval_ax), color=color)
-            ax.plot(np.arange(y.shape[0])[T_burnin:], y[T_burnin:], color='black', alpha=0.3, linewidth=1)
+            ax.fill_between(np.arange(y.shape[0]), np.clip(time_series[0], minval_ax, maxval_ax), np.clip(time_series[1], minval_ax, maxval_ax), color=color)
+            ax.plot(np.arange(y.shape[0]), y, color='black', alpha=0.3, linewidth=1)
+            if miscoverage_scatterplot:
+                ax.scatter(np.arange(y.shape[0])[~cvds], y[~cvds], color='red', alpha=0.3, linewidth=1, s=20)
         if hline is not None:
             ax.axhline(hline, color='#888888', linestyle='--', linewidth=1)
         sns.despine(ax=ax)  # Despine the top and right axes

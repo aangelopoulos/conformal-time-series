@@ -14,10 +14,10 @@ import pdb
 import matplotlib.patheffects as pe
 import matplotlib.ticker as mtick
 
-def plot_everything(coverages_list, sets_list, titles_list, y, alpha, T_burnin, window_start, window_end, window_loc, coverage_inset, set_inset, savename):
+def plot_everything(coverages_list, sets_list, titles_list, y, alpha, window_start, window_end, window_loc, coverage_inset, set_inset, miscoverage_scatterplot, savename):
     fig, axs = plt.subplots(nrows=2, ncols=len(coverages_list), figsize=(10 * len(coverages_list), 6), sharex=True, sharey=False)
-    plot_time_series(fig, axs[0,:], coverages_list, window_start, window_end, window_loc, False, T_burnin, y, "#138085", coverage_inset, hline=1-alpha )
-    plot_time_series(fig, axs[1,:], sets_list, window_start, window_end, window_loc, True, T_burnin, y, "#EEB362", set_inset)
+    plot_time_series(fig, axs[0,:], coverages_list, window_start, window_end, window_loc, False, y, "#138085", coverage_inset, False, hline=1-alpha )
+    plot_time_series(fig, axs[1,:], sets_list, window_start, window_end, window_loc, True, y, "#EEB362", set_inset, miscoverage_scatterplot)
     axs[0,0].set_ylabel('Coverage', fontsize=20)
     axs[1,0].set_ylabel('Sets', fontsize=20)
     axs[0,0].set_title(titles_list[0], fontsize=20)
@@ -26,7 +26,7 @@ def plot_everything(coverages_list, sets_list, titles_list, y, alpha, T_burnin, 
     ymin = min([ax.get_ylim()[0] for ax in axs[1,:]])
     ymax = max([ax.get_ylim()[1] for ax in axs[1,:]])
     for ax in axs[0,:]:
-        ax.set_ylim([0.5,1.2])
+        ax.set_ylim([0.3,1.2])
         ax.set_yticks([0.5, 0.75, 1.0])
     axs[0,0].yaxis.set_major_formatter(mtick.PercentFormatter(1))
     axs[0,0].yaxis.set_tick_params(labelsize=13)
@@ -65,14 +65,15 @@ if __name__ == '__main__':
     parser.add_argument('--coverage_average_length', help='Length of moving average window for coverage.', default=50, type=int)
     parser.add_argument('--coverage_inset', dest='coverage_inset', default=False, action='store_true')
     parser.add_argument('--set_inset', dest='set_inset', default=False, action='store_true')
+    parser.add_argument('--miscoverage_scatterplot', dest='miscoverage_scatterplot', default=False, action='store_true')
 
     args = parser.parse_args()
 
     method_title_map = {
         'ACI': 'ACI',
-        'Quantile': 'Quantile tracker' if args.lr1 != 0 else 'Base forecaster',
-        'Quantile+Integrator (log)': 'Quantile tracker + Integrator',
-        'Quantile+Integrator (log)+Scorecaster': 'Quantile tracker + Integrator + Scorecaster'
+        'Quantile': 'QT' if args.lr1 != 0 else 'Base forecaster',
+        'Quantile+Integrator (log)': 'QT + Integrator',
+        'Quantile+Integrator (log)+Scorecaster': 'QT + Integrator + Scorecaster'
     }
 
     # Parse command line arguments
@@ -110,4 +111,4 @@ if __name__ == '__main__':
     savename = datasetname + '_' + args.key1 + '_lr' + str(args.lr1) + '_' + args.key2 + '_lr' + str(args.lr2) + '_window' + str(args.window_length) + '_start' + str(args.window_start) + str(args.coverage_inset) + str(args.set_inset)
 
     # Call the plot_time_series function to plot the data
-    plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, T_burnin, window_start, window_end, args.window_loc, args.coverage_inset, args.set_inset, savename)
+    plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, window_start, window_end, args.window_loc, args.coverage_inset, args.set_inset, args.miscoverage_scatterplot, savename)

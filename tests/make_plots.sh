@@ -1,5 +1,5 @@
 # First write bash that iterates through all results and runs base_plots.py on them
-for i in `find ./results -name '*.pkl'` ; do python base_plots.py $i & done
+#for i in `find ./results -name '*.pkl'` ; do python base_plots.py $i & done
 
 # Next plot insets for various hand-chosen experimental settings.
 # The inset_plot.py script takes arguments from the following parser:
@@ -30,4 +30,4 @@ python inset_plot.py --filename results/GOOGL-better-forecaster.pkl --key1 Quant
 
 # Finally, compare Quantile+Integrator to Quantile+Integrator+Scorecaster
 python inset_plot.py --filename results/elec2.pkl --key1 ACI --lr1 0.1 --key2 'Quantile+Integrator (log)+Scorecaster' --lr2 0.01 --window_length 100 --window_start 1500 --window_loc 'lower right' --coverage_average_length 50 --set_inset &
-python inset_plot.py --filename results/COVID.pkl --key1 Quantile --lr1 0 --key2 'Quantile+Integrator (log)+Scorecaster' --lr2 1000 --window_length 15 --window_start 30 --window_loc 'upper right' --coverage_average_length 10 --set_inset &
+python inset_plot.py --filename results/COVID-deaths4wk.pkl --key1 Quantile --lr1 0 --key2 'Quantile+Integrator (log)+Scorecaster' --lr2 1000 --window_length 15 --window_start 30 --window_loc 'upper right' --coverage_average_length 10 --miscoverage_scatterplot &

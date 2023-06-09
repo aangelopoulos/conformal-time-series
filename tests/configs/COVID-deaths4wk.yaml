@@ -1,10 +1,11 @@
 real: True
 quantiles_given: True 
 multiple_series: False 
-T_burnin: 10 
+T_burnin: 30 
 alpha: 0.2
 score_function_name: "cqr-asymmetric"
 ahead: 4
+minsize: 1000 
 sequences:
   0:
     dataset: "COVID-deaths4wk"
@@ -34,7 +35,7 @@ methods:
       - 100
       - 10
       - 0
-    Csat: 0.72
+    Csat: 0.72 
     KI: 10000 
   Quantile+Integrator (log)+Scorecaster:
     lrs:
