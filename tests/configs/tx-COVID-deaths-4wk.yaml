@@ -1,0 +1,48 @@
+real: True
+quantiles_given: True 
+multiple_series: False 
+T_burnin: 5 
+alpha: 0.2
+score_function_name: "cqr-asymmetric"
+ahead: 4
+sequences:
+  0:
+    dataset: "tx-COVID-deaths-4wk"
+    log: False
+methods:
+  Trail:
+    weight_length: 10 
+  ACI:
+    lrs:
+      - 0.1
+      - 0.05
+      - 0.01
+      - 0.005
+      - 0.0001
+    window_length: 100000 
+  Quantile:
+    lrs:
+      - 500
+      - 200
+      - 100
+      - 10
+      - 0 
+  Quantile+Integrator (log):
+    lrs:
+      - 500
+      - 200
+      - 100
+      - 10
+      - 0
+    Csat: 2 
+    KI: 1000 
+  Quantile+Integrator (log)+Scorecaster:
+    lrs:
+      - 500 
+      - 200
+      - 100
+      - 10
+      - 0
+    Csat: 2 
+    KI: 1000 
+    steps_ahead: 1 

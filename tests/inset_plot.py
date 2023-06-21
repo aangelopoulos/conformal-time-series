@@ -22,16 +22,21 @@ def plot_everything(coverages_list, sets_list, titles_list, y, alpha, window_sta
     axs[1,0].set_ylabel('Sets', fontsize=20)
     axs[0,0].set_title(titles_list[0], fontsize=20)
     axs[0,1].set_title(titles_list[1], fontsize=20)
-    # Get the max and min values of each axis in axs[1,:] by calling get_ylim
-    ymin = min([ax.get_ylim()[0] for ax in axs[1,:]])
-    ymax = max([ax.get_ylim()[1] for ax in axs[1,:]])
+
+    # Get the max and min values of each axis in axs[0,:] by calling get_ylim
+    ymin = min([ax.get_ylim()[0] for ax in axs[0,:]])
+    ymax = max([ax.get_ylim()[1] for ax in axs[0,:]])
+
     for ax in axs[0,:]:
-        ax.set_ylim([0.3,1.2])
+        ax.set_ylim([ymin,ymax])
         ax.set_yticks([0.5, 0.75, 1.0])
     axs[0,0].yaxis.set_major_formatter(mtick.PercentFormatter(1))
     axs[0,0].yaxis.set_tick_params(labelsize=13)
     axs[0,1].set_yticklabels([])
 
+    # Get the max and min values of each axis in axs[1,:] by calling get_ylim
+    ymin = min([ax.get_ylim()[0] for ax in axs[1,:]])
+    ymax = max([ax.get_ylim()[1] for ax in axs[1,:]])
     for ax in axs[1,:]:
         ax.set_ylim([ymin, ymax + 0.1*np.abs(ymax)])
     axs[1,1].set_yticklabels([])
@@ -63,6 +68,7 @@ if __name__ == '__main__':
     parser.add_argument('--window_start', help='Start of inset window.', default=None, type=int)
     parser.add_argument('--window_loc', help='Location of inset window.', default='upper right', type=str)
     parser.add_argument('--coverage_average_length', help='Length of moving average window for coverage.', default=50, type=int)
+    parser.add_argument('--coverage_average_burnin', help='How long to wait before displaying moving average of coverages', default=0, type=int)
     parser.add_argument('--coverage_inset', dest='coverage_inset', default=False, action='store_true')
     parser.add_argument('--set_inset', dest='set_inset', default=False, action='store_true')
     parser.add_argument('--miscoverage_scatterplot', dest='miscoverage_scatterplot', default=False, action='store_true')
@@ -80,6 +86,7 @@ if __name__ == '__main__':
 
     args.window_start = args.window_start if args.window_start is not None else -args.window_length
     datasetname = args.filename.split('/')[-1].split('.')[0]
+    coverage_average_burnin = args.coverage_average_burnin
 
     # Load the data from the pickle file
     with open(args.filename, 'rb') as f:
@@ -93,13 +100,19 @@ if __name__ == '__main__':
     forecasts = data['forecasts']
     asymmetric = data['asymmetric']
     # if forecasts is a list, clip off the last element of each. otherwise, clip off the last element of the array
-    forecasts = [f[T_burnin+1:] for f in forecasts] if isinstance(forecasts, list) else forecasts[:-1]
+    #forecasts = [f[T_burnin+1:] for f in forecasts] if isinstance(forecasts, list) else forecasts[:-1]
+    forecasts = [f[T_burnin+1:] for f in forecasts] if isinstance(forecasts, list) else forecasts[T_burnin+1:]
     alpha = data['alpha']
     scores = data['scores'][T_burnin+1]
     y = data['data']['y'].to_numpy().astype(float)[T_burnin+1:]
 
-    covered1 = moving_average(((y >= sets1[0]) & (y <= sets1[1])).astype(float), args.coverage_average_length)
-    covered2 = moving_average(((y >= sets2[0]) & (y <= sets2[1])).astype(float), args.coverage_average_length)
+    covered1 = moving_average(((y >= sets1[0]) & (y <= sets1[1])).astype(float), args.coverage_average_length)[args.coverage_average_burnin:]
+    covered2 = moving_average(((y >= sets2[0]) & (y <= sets2[1])).astype(float), args.coverage_average_length)[args.coverage_average_burnin:]
+
+    # Clip the sets and y by coverage_average_burnin
+    sets1 = [s[args.coverage_average_burnin:] for s in sets1]
+    sets2 = [s[args.coverage_average_burnin:] for s in sets2]
+    y = y[args.coverage_average_burnin:]
 
     # Create pandas Series from the arrays with a simple numeric index
     time_series1 = pd.Series(covered1)

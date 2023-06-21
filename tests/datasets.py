@@ -36,6 +36,31 @@ def load_dataset(name):
         df = pd.read_pickle('./datasets/covid-ts-proc/proc_4wkdeaths.pkl')
         df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
         data = df
+    if name == "tx-COVID-deaths-4wk":
+        df = pd.read_pickle('./datasets/covid-ts-proc/statewide/tx_proc_4wkdeaths.pkl')
+        df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
+        data = df
+        data = data[data.timestamp <=  np.sort(data.timestamp.unique())[105]]
+    if name == "ca-COVID-deaths-4wk":
+        df = pd.read_pickle('./datasets/covid-ts-proc/statewide/ca_proc_4wkdeaths.pkl')
+        df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
+        data = df
+        data = data[data.timestamp <=  np.sort(data.timestamp.unique())[105]]
+    if name == "ga-COVID-deaths-4wk":
+        df = pd.read_pickle('./datasets/covid-ts-proc/statewide/ga_proc_4wkdeaths.pkl')
+        df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
+        data = df
+        data = data[data.timestamp <=  np.sort(data.timestamp.unique())[105]]
+    if name == "fl-COVID-deaths-4wk":
+        df = pd.read_pickle('./datasets/covid-ts-proc/statewide/fl_proc_4wkdeaths.pkl')
+        df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
+        data = df
+        data = data[data.timestamp <=  np.sort(data.timestamp.unique())[105]]
+    if name == "ny-COVID-deaths-4wk":
+        df = pd.read_pickle('./datasets/covid-ts-proc/statewide/ny_proc_4wkdeaths.pkl')
+        df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
+        data = df
+        data = data[data.timestamp <=  np.sort(data.timestamp.unique())[105]]
     if name == "COVID-cases3wk":
         df = pd.read_pickle('./datasets/covid-ts-proc/proc_3wkcases.pkl')
         df.rename({'variable' : 'item_id'}, axis='columns', inplace=True)
@@ -59,7 +84,7 @@ def load_dataset(name):
 
 if __name__ == "__main__":
     # Iterate through all the datasets and attempt loading them
-    datasets = ['daily-climate', 'ms-stock', 'AMZN', 'GOOGL', 'COVID-national-cases-1wk', 'COVID-national-cases-4wk', 'elec2', 'M4']
+    datasets = ['tx-COVID-deaths-4wk', 'ca-COVID-deaths-4wk']
     for dataset in datasets:
         print(f"Loading {dataset} dataset")
         data = load_dataset(dataset)
