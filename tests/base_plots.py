@@ -87,7 +87,7 @@ if __name__ == "__main__":
         j = 0
         for lr in results[key].keys():
             label = f"lr={lr}, cvg={100*coverages[key][lr]:.1f}%" if lr is not None else f"cvg={100*coverages[key][lr]:.1f}%"
-            axs[j,i].plot(xlabels_nonscores, moving_average(results[key][lr]["covered"]), label=label, linewidth=linewidth, color=color, alpha=transparency)
+            axs[j,i].plot(xlabels_nonscores[T_burnin:], moving_average(results[key][lr]["covered"])[T_burnin:], label=label, linewidth=linewidth, color=color, alpha=transparency)
             axs[j,i].axhline(1-alpha, color='#888888', linestyle='--', linewidth=linewidth)
             if label is not None:
                 axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)

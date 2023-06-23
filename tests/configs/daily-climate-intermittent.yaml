@@ -1,0 +1,55 @@
+real: True
+quantiles_given: False
+multiple_series: False 
+T_burnin: 500 
+alpha: 0.1
+seasonal_period: 365
+score_function_name: "signed-residual"
+sequences:
+  0:
+    dataset: "daily-climate"
+    fit_every: 30 
+    log: False
+    order:
+      - 3 
+      - 0
+      - 0
+    window_length: 10 
+    overwrite: False 
+methods:
+  Trail:
+    weight_length: 50 
+  ACI:
+    lrs:
+      - 0.1
+      - 0.05
+      - 0.01
+      - 0.005
+      - 0.0001
+    window_length: 10000000 
+  Quantile:
+    lrs:
+      - 1 
+      - 0.5 
+      - 0.1
+      - 0.05
+      - 0
+  Quantile+Integrator (log):
+    lrs:
+      - 1 
+      - 0.5 
+      - 0.1
+      - 0.05
+      - 0
+    Csat: 5 
+    KI: 10 
+  Quantile+Integrator (log)+Scorecaster:
+    lrs:
+      - 1 
+      - 0.5 
+      - 0.1
+      - 0.05
+      - 0
+    Csat: 5 
+    KI: 10 
+    steps_ahead: 1 

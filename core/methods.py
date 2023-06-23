@@ -78,10 +78,12 @@ def quantile(
     alpha,
     lr,
     ahead,
+    proportional_lr=True,
     *args,
     **kwargs
 ):
-    results = quantile_integrator_log(scores, alpha, lr, 1.0, 0, ahead, 0)
+    T_burnin = kwargs['T_burnin']
+    results = quantile_integrator_log(scores, alpha, lr, 1.0, 0, ahead, T_burnin, proportional_lr=proportional_lr)
     results['method'] = 'Quantile'
     return results
 
@@ -111,11 +113,12 @@ def quantile_integrator_log(
     KI,
     ahead,
     T_burnin,
+    proportional_lr=True,
     *args,
     **kwargs
 ):
     data = kwargs['data'] if 'data' in kwargs.keys() else None
-    results = quantile_integrator_log_scorecaster(scores, alpha, lr, data, T_burnin, Csat, KI, True, ahead, scorecast=False)
+    results = quantile_integrator_log_scorecaster(scores, alpha, lr, data, T_burnin, Csat, KI, True, ahead, proportional_lr=proportional_lr, scorecast=False)
     results['method'] = "Quantile+Integrator (log)"
     return results
 
@@ -134,6 +137,7 @@ def quantile_integrator_log_scorecaster(
     upper,
     ahead,
     integrate=True,
+    proportional_lr=True,
     scorecast=True,
 #    onesided_integrator=False,
     *args,
@@ -163,7 +167,10 @@ def quantile_integrator_log_scorecaster(
     # Run the main loop
     # At time t, we observe y_t and make a prediction for y_{t+ahead}
     # We also update the quantile at the next time-step, q[t+1], based on information up to and including t_pred = t - ahead + 1.
+    lr_t = lr * (scores[:T_burnin].max() - scores[:T_burnin].min()) if proportional_lr and T_burnin > 0 else lr
     for t in tqdm(range(T_test)):
+        #t_lr = t
+        #lr_t = lr * (scores[:t_lr].max() - scores[:t_lr].min()) if proportional_lr and t_lr > 0 else lr
         t_pred = t - ahead + 1
         if t_pred < 0:
             continue # We can't make any predictions yet if our prediction time has not yet arrived
@@ -186,7 +193,7 @@ def quantile_integrator_log_scorecaster(
             scorecasts[t+ahead] = model.forecast(ahead)
         # Update the next quantile
         if t < T_test - 1:
-            qts[t+1] = qts[t] - lr * grad
+            qts[t+1] = qts[t] - lr_t * grad
             integrators[t+1] = integrator if integrate else 0
             qs[t+1] = qts[t+1] + integrators[t+1]
             if scorecast:

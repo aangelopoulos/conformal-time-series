@@ -8,7 +8,7 @@ score_function_name: "signed-residual"
 sequences:
   0:
     dataset: "elec2"
-    fit_every: 48 
+    fit_every: 1 
     log: False
     order:
       - 3 
@@ -29,27 +29,27 @@ methods:
     window_length: 10000000 
   Quantile:
     lrs:
-      - 0.5
+      - 1 
+      - 0.5 
+      - 0.1
       - 0.05
-      - 0.01
-      - 0.001
-      - 0.0001
+      - 0
   Quantile+Integrator (log):
     lrs:
-      - 0.5
+      - 1 
+      - 0.5 
+      - 0.1
       - 0.05
-      - 0.01
-      - 0.001
-      - 0.0001
+      - 0
     Csat: 5 
     KI: 10 
   Quantile+Integrator (log)+Scorecaster:
     lrs:
+      - 1 
       - 0.5 
+      - 0.1
       - 0.05
-      - 0.01
-      - 0.001
-      - 0.0001
+      - 0
     Csat: 5
     KI: 10 
     steps_ahead: 1 
