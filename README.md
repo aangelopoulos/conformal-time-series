@@ -36,3 +36,6 @@ First, download your dataset and put it in <code>tests/datasets</code>.
 Then, edit the <code>tests/datasets.py</code> file to add a name for your dataset and some processing code for it. 
 Make sure the dataset follows the same standard format as the rest.
 Then ...
+
+<h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Workarounds for Known Bugs</h3>
+On M1/M2 Mac, in order to use Prophet, follow the instructions at this link: <code>https://github.com/facebook/prophet/issues/2250</code>.
