@@ -10,11 +10,11 @@ sequences:
     dataset: "MSFT"
     fit_every: 1 
     log: True
-    order:
-      - 3 
-      - 0
-      - 0 
-    window_length: 100 
+    model_names: 
+      - "theta"
+      - "ar"
+      - "transformer"
+      - "prophet"
     overwrite: False 
 methods:
   Trail:

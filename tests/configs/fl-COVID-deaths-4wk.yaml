@@ -8,6 +8,8 @@ ahead: 4
 sequences:
   0:
     dataset: "fl-COVID-deaths-4wk"
+    model_names:
+      - "CDC Forecaster"
     log: False
 methods:
   Trail:

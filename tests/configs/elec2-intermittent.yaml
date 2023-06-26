@@ -10,11 +10,9 @@ sequences:
     dataset: "elec2"
     fit_every: 48 
     log: False
-    order:
-      - 3 
-      - 0 
-      - 0
-    window_length: 80 
+    model_names: 
+      - "ar"
+      - "transformer"
     overwrite: False
 methods:
   Trail:

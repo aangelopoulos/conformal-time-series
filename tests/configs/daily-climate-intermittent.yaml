@@ -10,11 +10,9 @@ sequences:
     dataset: "daily-climate"
     fit_every: 30 
     log: False
-    order:
-      - 3 
-      - 0
-      - 0
-    window_length: 10 
+    model_names: 
+      - "ar"
+      - "transformer"
     overwrite: False 
 methods:
   Trail:

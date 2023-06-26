@@ -15,6 +15,16 @@ import pickle as pkl
 import seaborn as sns
 import pdb
 
+def longest_true_sequence(arr):
+    # Add False at each end to make sure we always get the length of every True sequence
+    # Even when they are at the start or end of the array
+    arr = np.concatenate(([False], arr, [False]))
+    # Find the indices where the array goes from False to True or True to False
+    idx = np.flatnonzero(arr[1:] != arr[:-1])
+    # Get lengths of True sequences and get the maximum length
+    max_length = np.max(idx[1::2] - idx[::2])
+    return max_length
+
 def is_listlike(l):
     return isinstance(l, (pd.Series, list, np.ndarray))
 
