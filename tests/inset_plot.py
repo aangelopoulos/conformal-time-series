@@ -25,7 +25,7 @@ def dataframe_to_latex(df):
     df_pivot = df_melted.pivot_table(index='Metric', columns=['Model type', 'Method'], values='Value')
 
     # Reindex the metrics in the specific order
-    metric_order = ['Marginal coverage', 'Long seq miscvg', 'Average set size', 'Median set size', '75% quantile set size', '90% quantile set size', '95% quantile set size']
+    metric_order = ['Marginal coverage', 'Longest err sequence', 'Average set size', 'Median set size', '75% quantile set size', '90% quantile set size', '95% quantile set size']
     df_pivot = df_pivot.reindex(metric_order)
 
     # Start LaTeX table
@@ -56,10 +56,10 @@ def dataframe_to_latex(df):
     return latex_table
 
 
-def plot_everything(coverages_list, sets_list, titles_list, y, alpha, window_start, window_end, window_loc, coverage_inset, set_inset, miscoverage_scatterplot, savename, model_name):
+def plot_everything(coverages_list, sets_list, titles_list, y, alpha, window_start, window_end, window_loc, coverage_inset, set_inset, miscoverage_scatterplot, savename, model_name, datetimes=None):
     fig, axs = plt.subplots(nrows=2, ncols=len(coverages_list), figsize=(10 * len(coverages_list), 6), sharex=True, sharey=False)
-    plot_time_series(fig, axs[0,:], coverages_list, window_start, window_end, window_loc, False, y, "#138085", coverage_inset, False, hline=1-alpha )
-    plot_time_series(fig, axs[1,:], sets_list, window_start, window_end, window_loc, True, y, "#EEB362", set_inset, miscoverage_scatterplot)
+    plot_time_series(fig, axs[0,:], coverages_list, window_start, window_end, window_loc, False, y, "#138085", coverage_inset, False, datetimes, hline=1-alpha )
+    plot_time_series(fig, axs[1,:], sets_list, window_start, window_end, window_loc, True, y, "#EEB362", set_inset, miscoverage_scatterplot, datetimes)
     axs[0,0].set_ylabel('Coverage', fontsize=20)
     axs[1,0].set_ylabel('Sets', fontsize=20)
     axs[0,0].set_title(titles_list[0], fontsize=20)
@@ -88,12 +88,14 @@ def plot_everything(coverages_list, sets_list, titles_list, y, alpha, window_sta
     axs[1,0].xaxis.set_tick_params(labelsize=13)
     axs[1,1].xaxis.set_tick_params(labelsize=13)
 
+    fig.autofmt_xdate()
+
     plt.subplots_adjust(left=0.1, bottom=0.15)
     # add a big axis, hide frame
     fig.add_subplot(111, frameon=False)
 # hide tick and tick label of the big axis
     plt.tick_params(labelcolor='none', which='both', top=False, bottom=False, left=False, right=False)
-    plt.xlabel("Time", fontsize=20, labelpad=20)
+    plt.xlabel("Time", fontsize=20, labelpad=40)
     os.makedirs('./plots/1v1/' + model_name, exist_ok=True)
     plt.savefig('./plots/1v1/' + model_name + "/" + savename + '.pdf', bbox_inches='tight')
 
@@ -167,10 +169,10 @@ if __name__ == '__main__':
         # Give all infinite sets the value 'Inf'
         df_list_for_table += [pd.DataFrame({
             'Model type': model_name,
-            'Method': method_title_map[args.key1] + ' ($\\eta=' + str(args.lr1) + '$)' if args.lr1 != 0 else method_title_map[args.key1],
+            'Method': method_title_map[args.key1],
             'Marginal coverage': ((y >= sets1[0]) & (y <= sets1[1])).mean(),
             # The next line gets the longest sequence of `True' in the boolean array ((y < sets1[0]) | (y > sets1[1]))
-            'Long seq miscvg': longest_true_sequence((y < sets1[0]) | (y > sets1[1])),
+            'Longest err sequence': longest_true_sequence((y < sets1[0]) | (y > sets1[1])),
             'Average set size': np.mean(sizes1) if not np.any(np.isinf(sizes1)) else 'Inf',
             'Median set size': np.median(np.nan_to_num(sizes1, nan=np.inf)),
             '75% quantile set size': np.quantile(np.nan_to_num(sizes1, nan=np.inf), 0.75),
@@ -183,7 +185,7 @@ if __name__ == '__main__':
             'Method': method_title_map[args.key2] + ' ($\\eta=' + str(args.lr2) + '$)' if args.lr2 != 0 else method_title_map[args.key2],
             'Marginal coverage': ((y >= sets2[0]) & (y <= sets2[1])).mean(),
             # The next line gets the longest sequence of `True' in the boolean array ((y < sets2[0]) | (y > sets2[1]))
-            'Long seq miscvg': longest_true_sequence((y < sets2[0]) | (y > sets2[1])),
+            'Longest err sequence': longest_true_sequence((y < sets2[0]) | (y > sets2[1])),
             'Average set size': np.mean(sizes2) if not np.any(np.isinf(sizes2)) else 'Inf',
             'Median set size': np.median(np.nan_to_num(sizes2, nan=np.inf)),
             '75% quantile set size': np.quantile(np.nan_to_num(sizes2, nan=np.inf), 0.75),
@@ -201,7 +203,7 @@ if __name__ == '__main__':
         savename = datasetname + '_' + model_name + '_' + args.key1 + '_lr' + str(args.lr1) + '_' + args.key2 + '_lr' + str(args.lr2) + '_window' + str(args.window_length) + '_start' + str(args.window_start) + str(args.coverage_inset) + str(args.set_inset)
 
         # Call the plot_time_series function to plot the data
-        plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, window_start, window_end, args.window_loc, args.coverage_inset, args.set_inset, args.miscoverage_scatterplot, savename, model_name)
+        plot_everything([time_series1, time_series2], [sets1, sets2], [method_title_map[args.key1], method_title_map[args.key2]], y, alpha, window_start, window_end, args.window_loc, args.coverage_inset, args.set_inset, args.miscoverage_scatterplot, savename, model_name, datetimes=data['data'].index[T_burnin+1:][args.coverage_average_burnin:])
     # Create a dataframe from the list of dataframes
     df = pd.concat(df_list_for_table)
 

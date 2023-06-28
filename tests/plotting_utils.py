@@ -76,7 +76,7 @@ def moving_average(x, window=50):
         ma[i] = np.mean(x[max(0, i-window+1):i+1])
     return ma
 
-def plot_time_series(fig, axs, time_series_list, window_start, window_end, window_loc, sets, y, color, inset, miscoverage_scatterplot, hline=None):
+def plot_time_series(fig, axs, time_series_list, window_start, window_end, window_loc, sets, y, color, inset, miscoverage_scatterplot, datetimes, hline=None):
     # Create a figure and a grid of subplots
     all_axins = []
     # Get the minimum and maximum values for the axes and axins
@@ -101,13 +101,13 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, windo
 
         # Use seaborn to plot the time series on the ax
         if not sets:
-            sns.lineplot(x=time_series.index, y=time_series, ax=ax, color=color)
+            sns.lineplot(x=datetimes, y=time_series, ax=ax, color=color)
         else:
             cvds = (time_series[0] <= y) & (time_series[1] >= y)
-            ax.fill_between(np.arange(y.shape[0]), np.clip(time_series[0], minval_ax, maxval_ax), np.clip(time_series[1], minval_ax, maxval_ax), color=color)
-            ax.plot(np.arange(y.shape[0]), y, color='black', alpha=0.3, linewidth=1)
+            ax.fill_between(datetimes, np.clip(time_series[0], minval_ax, maxval_ax), np.clip(time_series[1], minval_ax, maxval_ax), color=color)
+            ax.plot(datetimes, y, color='black', alpha=0.3, linewidth=1)
             if miscoverage_scatterplot:
-                ax.scatter(np.arange(y.shape[0])[~cvds], y[~cvds], color='red', alpha=0.3, linewidth=1, s=20)
+                ax.scatter(datetimes[~cvds], y[~cvds], color='red', alpha=0.7, linewidth=1, s=30)
         if hline is not None:
             ax.axhline(hline, color='#888888', linestyle='--', linewidth=1)
         sns.despine(ax=ax)  # Despine the top and right axes
@@ -126,11 +126,11 @@ def plot_time_series(fig, axs, time_series_list, window_start, window_end, windo
 
             # On the inset ax, plot the same time series but only the window of interest
             if not sets:
-                sns.lineplot(x=time_series[window_start:window_end].index, y=time_series[window_start:window_end], ax=axins, color=color)
+                sns.lineplot(x=datetimes[window_start:window_end], y=time_series[window_start:window_end], ax=axins, color=color)
             else:
                 cvds = (time_series[0][window_start:window_end] <= y[window_start:window_end]) & (time_series[1][window_start:window_end] >= y[window_start:window_end])
-                axins.fill_between(np.arange(y.shape[0])[window_start:window_end], np.clip(time_series[0][window_start:window_end], minval_axins, maxval_axins), np.clip(time_series[1][window_start:window_end], minval_axins, maxval_axins), color=color)
-                axins.plot(np.arange(y.shape[0])[window_start:window_end], y[window_start:window_end], color='black', alpha=0.3, linewidth=1)
+                axins.fill_between(datetimes[window_start:window_end], np.clip(time_series[0][window_start:window_end], minval_axins, maxval_axins), np.clip(time_series[1][window_start:window_end], minval_axins, maxval_axins), color=color)
+                axins.plot(datetimes[window_start:window_end], y[window_start:window_end], color='black', alpha=0.3, linewidth=1)
 
             if hline is not None:
                 axins.axhline(hline, color='#888888', linestyle='--', linewidth=1)

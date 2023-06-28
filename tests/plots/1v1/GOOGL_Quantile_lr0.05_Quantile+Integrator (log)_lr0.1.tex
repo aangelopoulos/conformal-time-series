@@ -1,0 +1,14 @@
+\begin{tabular}{lllllllll}
+\toprule
+& \multicolumn{2}{c}{AR}& \multicolumn{2}{c}{Prophet}& \multicolumn{2}{c}{Theta}& \multicolumn{2}{c}{Transformer} \\
+& QT & QT + Integrator ($\eta=0.1$) & QT & QT + Integrator ($\eta=0.1$) & QT & QT + Integrator ($\eta=0.1$) & QT & QT + Integrator ($\eta=0.1$) \\
+\midrule
+Marginal coverage & 0.903 & 0.9 & 0.898 & 0.9 & 0.9 & 0.9 & 0.89 & 0.894 \\
+Longest err sequence & 3 & 2 & 6 & 4 & 2 & 2 & 18 & 11 \\
+Average set size & 30.9 & 34.8 & 56.3 & 49.4 & 31.9 & 38.6 & 135 & 96.2 \\
+Median set size & 24.9 & 33.6 & 46.4 & 42.5 & 29.8 & 37.1 & 96.6 & 51.1 \\
+75\% quantile set size & 34.8 & 44.7 & 80.5 & 65.3 & 40.9 & 48.4 & 162 & 111 \\
+90\% quantile set size & 51 & 53.7 & 104 & 88.1 & 50.9 & 61.1 & 326 & 285 \\
+95\% quantile set size & 73.4 & 61.4 & 123 & 102 & 58.3 & 69.3 & 350 & 319 \\
+\bottomrule
+\end{tabular}
