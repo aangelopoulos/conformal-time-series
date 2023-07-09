@@ -2,7 +2,7 @@ import os, sys
 sys.path.insert(1, os.path.join(sys.path[0], '../'))
 import numpy as np
 import pandas as pd
-from core import standard_weighted_quantile, trailing_window, aci, quantile, quantile_integrator_log, quantile_integrator_log_scorecaster
+from core import standard_weighted_quantile, trailing_window, aci, aci_clipped, quantile, quantile_integrator_log, quantile_integrator_log_scorecaster
 from core.synthetic_scores import generate_scores
 from core.model_scores import generate_forecasts
 from datasets import load_dataset
@@ -27,7 +27,7 @@ if __name__ == "__main__":
     quantiles_given = args['quantiles_given']
     multiple_series = args['multiple_series']
     score_function_name = args['score_function_name'] if real_data else "synthetic"
-    model_names = args['sequences'][0]['model_names'] if real_data else "synthetic"
+    model_names = args['sequences'][0]['model_names'] if real_data else ["synthetic"]
     ahead = args['ahead'] if real_data and 'ahead' in args.keys() else 1
     minsize = args['minsize'] if real_data and 'minsize' in args.keys() else 0
     asymmetric = False
@@ -105,12 +105,16 @@ if __name__ == "__main__":
                 args['methods'][method]['lrs'] = [None]
             elif method == "ACI":
                 fn = aci
+            elif method == "ACI (clipped)":
+                fn = aci_clipped
             elif method == "Quantile":
                 fn = quantile
             elif method == "Quantile+Integrator (log)":
                 fn = quantile_integrator_log
             elif method == "Quantile+Integrator (log)+Scorecaster":
                 fn = quantile_integrator_log_scorecaster
+            else:
+                raise Exception(f"Method {method} not implemented")
             lrs = args['methods'][method]['lrs']
             kwargs = args['methods'][method]
             kwargs["T_burnin"] = args["T_burnin"]

@@ -120,9 +120,10 @@ if __name__ == '__main__':
 
     method_title_map = {
         'ACI': 'ACI',
+        'ACI (clipped)': 'ACI (clipped)',
         'Quantile': 'QT' if args.lr1 != 0 else 'Base forecaster',
         'Quantile+Integrator (log)': 'QT + Integrator',
-        'Quantile+Integrator (log)+Scorecaster': 'QT + Integrator + Scorecaster'
+        'Quantile+Integrator (log)+Scorecaster': 'Conformal PID Controller'
     }
 
     # Parse command line arguments

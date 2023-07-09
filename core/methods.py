@@ -32,6 +32,47 @@ def trailing_window(
     results = {"method": "Trail", "q" : qs}
     return results
 
+def aci_clipped(
+    scores,
+    alpha,
+    lr,
+    window_length,
+    T_burnin,
+    ahead,
+    *args,
+    **kwargs
+):
+    T_test = scores.shape[0]
+    alphat = alpha
+    qs = np.zeros((T_test,))
+    alphas = np.ones((T_test,)) * alpha
+    covereds = np.zeros((T_test,))
+    for t in tqdm(range(T_test)):
+        t_pred = t - ahead + 1
+        clip_value = scores[max(t_pred-window_length,0):t_pred].max() if t_pred > 0 else np.infty
+        if t_pred > T_burnin:
+            # Setup: current gradient
+            if alphat <= 1/(t_pred+1):
+                qs[t] = np.infty
+            else:
+                qs[t] = np.quantile(scores[max(t_pred-window_length,0):t_pred], 1-np.clip(alphat, 0, 1), method='higher')
+            covereds[t] = qs[t] >= scores[t]
+            grad = -alpha if covereds[t_pred] else 1-alpha
+            alphat = alphat - lr*grad
+
+            if t < T_test - 1:
+                alphas[t+1] = alphat
+        else:
+            if t_pred > np.ceil(1/alpha):
+                qs[t] = np.quantile(scores[:t_pred], 1-alpha)
+            else:
+                qs[t] = np.infty
+        if qs[t] == np.infty:
+            qs[t] = clip_value
+    results = { "method": "ACI (clipped)", "q" : qs, "alpha" : alphas}
+    return results
+
+
 def aci(
     scores,
     alpha,
@@ -167,10 +208,11 @@ def quantile_integrator_log_scorecaster(
     # Run the main loop
     # At time t, we observe y_t and make a prediction for y_{t+ahead}
     # We also update the quantile at the next time-step, q[t+1], based on information up to and including t_pred = t - ahead + 1.
-    lr_t = lr * (scores[:T_burnin].max() - scores[:T_burnin].min()) if proportional_lr and T_burnin > 0 else lr
+    #lr_t = lr * (scores[:T_burnin].max() - scores[:T_burnin].min()) if proportional_lr and T_burnin > 0 else lr
     for t in tqdm(range(T_test)):
-        #t_lr = t
-        #lr_t = lr * (scores[:t_lr].max() - scores[:t_lr].min()) if proportional_lr and t_lr > 0 else lr
+        t_lr = t
+        t_lr_min = max(t_lr - T_burnin, 0)
+        lr_t = lr * (scores[t_lr_min:t_lr].max() - scores[t_lr_min:t_lr].min()) if proportional_lr and t_lr > 0 else lr
         t_pred = t - ahead + 1
         if t_pred < 0:
             continue # We can't make any predictions yet if our prediction time has not yet arrived

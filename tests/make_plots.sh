@@ -1,5 +1,5 @@
 # First write bash that iterates through all results and runs base_plots.py on them
-for i in `find ./results -name '*.pkl'` ; do python base_plots.py $i & done
+#for i in `find ./results -name '*.pkl'` ; do python base_plots.py $i & done
 
 # Next plot insets for various hand-chosen experimental settings.
 # The inset_plot.py script takes arguments from the following parser:
@@ -18,9 +18,15 @@ for i in `find ./results -name '*.pkl'` ; do python base_plots.py $i & done
 
 # First set of inset plots compares ACI to Quantile tracker
 python inset_plot.py --filename results/AMZN.pkl --key1 ACI --lr1 0.1 --key2 Quantile --lr2 0.5 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50  --coverage_average_burnin 50 &
-python inset_plot.py --filename results/AMZN.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 0.5 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --coverage_average_burnin 50 &
+python inset_plot.py --filename results/AMZN.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 0.1 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --coverage_average_burnin 50 &
 python inset_plot.py --filename results/AMZN.pkl --key1 ACI --lr1 0.1 --key2 Quantile --lr2 0.5 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset --coverage_average_burnin 50 &
-python inset_plot.py --filename results/AMZN.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 0.5 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset --coverage_average_burnin 50 &
+python inset_plot.py --filename results/AMZN.pkl --key1 ACI --lr1 0.005 --key2 Quantile --lr2 0.1 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset --coverage_average_burnin 50 &
+
+# For appendix, try comparing ACI (clipped) to Quantile tracker to see if it fixes the problem
+python inset_plot.py --filename results/AMZN.pkl --key1 'ACI (clipped)' --lr1 0.1 --key2 Quantile --lr2 0.5 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50  --coverage_average_burnin 50 &
+python inset_plot.py --filename results/AMZN.pkl --key1 'ACI (clipped)' --lr1 0.005 --key2 Quantile --lr2 0.1 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --coverage_average_burnin 50 &
+python inset_plot.py --filename results/AMZN.pkl --key1 'ACI (clipped)' --lr1 0.1 --key2 Quantile --lr2 0.5 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset --coverage_average_burnin 50 &
+python inset_plot.py --filename results/AMZN.pkl --key1 'ACI (clipped)' --lr1 0.005 --key2 Quantile --lr2 0.1 --window_length 400 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --set_inset --coverage_average_burnin 50 &
 
 # Second set of inset plots compares Quantile tracker to Quantile+Integrator
 python inset_plot.py --filename results/GOOGL.pkl --key1 Quantile --lr1 0.1 --key2 'Quantile+Integrator (log)' --lr2 0.1 --window_length 100 --window_start 2300 --window_loc 'upper left' --coverage_average_length 50 --coverage_average_burnin 50 &
