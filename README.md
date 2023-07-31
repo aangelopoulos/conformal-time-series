@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-    <img width=50% src="https://github.com/aangelopoulos/conformal-time-series/blob/master/media/pid-simplified.svg">
+    <img width=50% src="https://github.com/aangelopoulos/conformal-time-series/blob/master/media/PID-simplified.svg">
 </p>
 
 <p>
