@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-    <a style="text-decoration:none !important;" href="https://opensource.org/licenses/MIT" alt="License"><img width=50% src="https://github.com/aangelopoulos/conformal-classification/blob/master/media/pid-simplified.svg"></a>
+    <img width=50% src="https://github.com/aangelopoulos/conformal-time-series/blob/master/media/pid-simplified.svg">
 </p>
 
 <p>
