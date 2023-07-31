@@ -11,7 +11,7 @@
 </p>
 
 <p>
-This repository is about producing <b>prediction sets</b> in <b>time-series prediction</b>.
+This repository is about producing <b>prediction sets for time series</b>.
     
 We take a <b>control systems outlook</b> on performing this task, introducing a method called <a style="text-decoration:none !important;" href="" alt="arXiv">Conformal PID Control</a>.
 
