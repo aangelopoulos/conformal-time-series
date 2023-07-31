@@ -7,4 +7,3 @@ scipy
 statsmodels
 darts
 tqdm
-pickle
