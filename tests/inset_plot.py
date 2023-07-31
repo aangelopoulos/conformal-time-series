@@ -121,9 +121,9 @@ if __name__ == '__main__':
     method_title_map = {
         'ACI': 'ACI',
         'ACI (clipped)': 'ACI (clipped)',
-        'Quantile': 'QT' if args.lr1 != 0 else 'Base forecaster',
-        'Quantile+Integrator (log)': 'QT + Integrator',
-        'Quantile+Integrator (log)+Scorecaster': 'Conformal PID Controller'
+        'Quantile': 'Conformal P Control' if args.lr1 != 0 else 'Base Forecaster',
+        'Quantile+Integrator (log)': 'Conformal PI Control',
+        'Quantile+Integrator (log)+Scorecaster': 'Conformal PID Control'
     }
 
     # Parse command line arguments
@@ -183,7 +183,7 @@ if __name__ == '__main__':
 
         df_list_for_table += [pd.DataFrame({
             'Model type': model_name,
-            'Method': method_title_map[args.key2] + ' ($\\eta=' + str(args.lr2) + '$)' if args.lr2 != 0 else method_title_map[args.key2],
+            'Method': method_title_map[args.key2],
             'Marginal coverage': ((y >= sets2[0]) & (y <= sets2[1])).mean(),
             # The next line gets the longest sequence of `True' in the boolean array ((y < sets2[0]) | (y > sets2[1]))
             'Longest err sequence': longest_true_sequence((y < sets2[0]) | (y > sets2[1])),

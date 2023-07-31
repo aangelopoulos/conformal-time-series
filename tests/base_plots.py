@@ -17,8 +17,22 @@ if __name__ == "__main__":
         all_results = pkl.load(handle)
     dataset_name = results_filename.split('.')[-2].split('/')[-1]
     model_names = list(all_results.keys())
+
+    # Remap names
+    method_title_map = {
+        'Trail': 'Trail',
+        'ACI': 'ACI',
+        'ACI (clipped)': 'ACI (clipped)',
+        'Quantile': 'Conformal P',
+        'Quantile+Integrator (log)': 'Conformal PI',
+        'Quantile+Integrator (log)+Scorecaster': 'Conformal PID'
+    }
+
     for model_name in model_names:
         results = all_results[model_name]
+        # If results contains ACI (clipped), delete it
+        if 'ACI (clipped)' in results.keys():
+            del results['ACI (clipped)']
         plots_folder = "./plots/" + dataset_name + "/" + model_name + "/"
         os.makedirs(plots_folder, exist_ok=True)
 
@@ -95,9 +109,8 @@ if __name__ == "__main__":
                 if label is not None:
                     axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                 j = j + 1
-            # Split the key by the '+' character and add a new line
-            title = key.replace('+', '\n+').replace('(log)', '')
-            axs[0,i].set_title(title)
+            # Title the top row
+            axs[0,i].set_title(method_title_map[key])
             i = i + 1
         fig.supxlabel('Time')
         fig.supylabel('Coverage')
@@ -128,8 +141,7 @@ if __name__ == "__main__":
                 if label is not None:
                     axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                 j = j + 1
-            title = key.replace('+', '\n+').replace('(log)', '')
-            axs[0,i].set_title(title)
+            axs[0,i].set_title(method_title_map[key])
             i = i + 1
         axs[0,0].plot(xlabels_nonscores[-last:], upper_scores,linewidth=linewidth,alpha=transparency,color=cmap_lines[-1])
         axs[0,0].set_title('Scores')
@@ -168,8 +180,7 @@ if __name__ == "__main__":
                     if label is not None:
                         axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                     j = j + 1
-                title = key.replace('+', '\n+').replace('(log)', '')
-                axs[0,i].set_title(title)
+                axs[0,i].set_title(method_title_map[key])
                 i = i + 1
             axs[0,0].plot(np.arange(y_zoomed.shape[0]),y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
             axs[0,0].legend()
@@ -214,8 +225,7 @@ if __name__ == "__main__":
                     if label is not None:
                         axs[j,i].legend(handlelength=0.0,handletextpad=-0.1)
                     j = j + 1
-                title = key.replace('+', '\n+').replace('(log)', '')
-                axs[0,i].set_title(title)
+                axs[0,i].set_title(method_title_map[key])
                 i = i + 1
             axs[0,0].plot(y_zoomed,linewidth=linewidth,alpha=transparency,color='black',label="ground truth")
             axs[0,0].legend()
