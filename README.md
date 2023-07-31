@@ -56,7 +56,7 @@ def quantile(
 ):
 </pre>
 The first three arguments, <code>scores</code>, <code>alpha</code>, and <code>lr</code>, are <i>required</i> arguments for all methods.
-The first argument, <code>scores</code>, expects a numpy array of conformal scores. The second argument, <code>alpha</code>, is the desired miscoverage. Finally, the third argument, <code>lr</code>, is the learning rate. (In our paper, this is eta, and in the language of control, this is $K_p$.)
+The first argument, <code>scores</code>, expects a numpy array of conformal scores. The second argument, <code>alpha</code>, is the desired miscoverage. Finally, the third argument, <code>lr</code>, is the learning rate. (In our paper, this is $\eta$, and in the language of control, this is $K_p$.)
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Datasets</h3>
 First, download your dataset and put it in <code>tests/datasets</code>.
