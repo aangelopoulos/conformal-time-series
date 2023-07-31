@@ -12,28 +12,49 @@
 </p>
 
 <p>
-This repository is meant to make it easy to understand and extend existing methods for time-series conformal prediction. 
-We focus on methods that guarantee coverage in the adversarial sequence setting, where the time series is potentially adversarial. 
-It also reproduces the experiments from our paper, Conformal Scorecasting.
+This repository is about producing <b>prediction sets</b> in <b>time-series prediction</b>.
+    
+We take a <b>control systems outlook</b> on performing this task, introducing a method called <a style="text-decoration:none !important;" href="" alt="arXiv">Conformal PID Control</a>.
+
+The method is formally valid in the sense that for any, possibly <i>adversarial sequence</i>, coverage will be guaranteed.
+It also includes adaptive conformal prediction as a subset.
 </p>
 
-<p align="center"> <b>We make it easy to extend methods/add new datasets.</b></p>
+<p align="center"> <b>This codebase makes it easy to extend the methods/add new datasets.</b>
+We will describe how to do so below.
+</p>
 
+<h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Getting Started</h3>
 <p>
-The only thing you need to do is install the dependencies in the <code>environment.yml</code> file, then run
-<code>cd tests
-bash run_tests.sh
-</code>
-Then to generate the plots, run
+To reproduce the experiments in our paper, clone this repo and run the following code from the root directory.
 <code>
+conda create --name pid
+pip install -r requirements.txt
+cd tests
+bash run_tests.sh
 bash make_plots.sh
 </code>
 </p>
 
+The one exception is the COVID experiment. For that experiment, you must first run the jupyter notebook in <code>conformal-time-series/tests/datasets/covid-ts-proc/statewide
+/death-forecasting-perstate-lasso-qr.ipynb</code>.
+It requires the <code>deaths.csv</code> data file, which you can download from <a style="text-decoration:none !important;" href="" alt="arXiv">this Drive link</a>.
+
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Methods</h3>
 The <code>core/methods.py</code> file contains all methods.
-Define a new method there, using the same template as the rest.
-Then ... 
+Consider the following header as an example:
+
+<code>
+def quantile(
+    scores,
+    alpha,
+    lr,
+    ahead,
+    proportional_lr=True,
+    *args,
+    **kwargs
+):
+</code>
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Datasets</h3>
 First, download your dataset and put it in <code>tests/datasets</code>.
