@@ -42,7 +42,7 @@ It requires the <code>deaths.csv</code> data file, which you can download from <
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Methods</h3>
 The <code>core/methods.py</code> file contains all methods.
-Consider the following header as an example:
+Consider the following method header, for the P controller/quantile tracker, as an example:
 
 <pre>
 def quantile(
@@ -55,6 +55,8 @@ def quantile(
     **kwargs
 ):
 </pre>
+The first three arguments, <code>scores</code>, <code>alpha</code>, and <code>lr</code>, are <i>required</i> arguments for all methods.
+The first argument, <code>scores</code>, expects a numpy array of conformal scores. The second argument, <code>alpha</code>, is the desired miscoverage. Finally, the third argument, <code>lr</code>, is the learning rate. (In our paper, this is eta, and in the language of control, this is $K_p$.)
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Datasets</h3>
 First, download your dataset and put it in <code>tests/datasets</code>.
