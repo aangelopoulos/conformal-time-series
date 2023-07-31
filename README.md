@@ -38,7 +38,7 @@ bash make_plots.sh
 
 The one exception is the COVID experiment. For that experiment, you must first run the jupyter notebook in <code>conformal-time-series/tests/datasets/covid-ts-proc/statewide
 /death-forecasting-perstate-lasso-qr.ipynb</code>.
-It requires the <code>deaths.csv</code> data file, which you can download from <a style="text-decoration:none !important;" href="" alt="arXiv">this Drive link</a>.
+It requires the <code>deaths.csv</code> data file, which you can download from <a style="text-decoration:none !important;" href="https://drive.google.com/file/d/1p_l3bKJjypmJDmIZ0tqrwIZWDo8JDjvY/view?usp=sharing" alt="arXiv">this Drive link</a>.
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Methods</h3>
 
