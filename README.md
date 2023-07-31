@@ -1,10 +1,14 @@
-<h1 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Conformal Scorecasting</h1>
-<h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">anticipatory uncertainty quantification for time-series distribution shift</h3>
+<h1 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Conformal PID Control</h1>
+<h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">for Time-Series Prediction</h3>
 
 <p align="center">
     <a style="text-decoration:none !important;" href="" alt="arXiv"><img src="https://img.shields.io/badge/paper-arXiv-red" /></a>
     <a style="text-decoration:none !important;" href="https://docs.conda.io/en/latest/miniconda.html" alt="package management"> <img src="https://img.shields.io/badge/conda-env-green" /></a>
     <a style="text-decoration:none !important;" href="https://opensource.org/licenses/MIT" alt="License"><img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
+</p>
+
+<p align="center">
+    <a style="text-decoration:none !important;" href="https://opensource.org/licenses/MIT" alt="License"><img width=50% src="https://github.com/aangelopoulos/conformal-classification/blob/master/media/pid-simplified.svg"></a>
 </p>
 
 <p>
