@@ -1,5 +1,4 @@
-<h1 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Conformal PID Control</h1>
-<h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">for Time-Series Prediction</h3>
+<h1 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Conformal PID Control for Time-Series Prediction</h1>
 
 <p align="center">
     <a style="text-decoration:none !important;" href="" alt="arXiv"><img src="https://img.shields.io/badge/paper-arXiv-red" /></a>
