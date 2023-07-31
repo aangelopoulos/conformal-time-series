@@ -16,7 +16,7 @@ This repository is about producing <b>prediction sets for time series</b>.
 The methods here are guaranteed to have coverage for any, possibly <i>adversarial sequence</i>.
 We take a <b>control systems outlook</b> on performing this task, introducing a method called <a style="text-decoration:none !important;" href="" alt="arXiv">Conformal PID Control</a>. 
 
-(Adaptive conformal prediction is a special case of this technique, but there are also improvements included.)
+Read <a style="text-decoration:none !important;" href="" alt="arXiv">the paper</a> for the methodological details!
 </p>
 
 <p align="center"> <b>This codebase makes it easy to extend the methods/add new datasets.</b>
