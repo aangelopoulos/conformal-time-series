@@ -41,6 +41,8 @@ The one exception is the COVID experiment. For that experiment, you must first r
 It requires the <code>deaths.csv</code> data file, which you can download from <a style="text-decoration:none !important;" href="" alt="arXiv">this Drive link</a>.
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Methods</h3>
+
+<h5>Step 1: Defining the method. </h5>
 The <code>core/methods.py</code> file contains all methods.
 Consider the following method header, for the P controller/quantile tracker, as an example:
 
@@ -57,6 +59,24 @@ def quantile(
 </pre>
 The first three arguments, <code>scores</code>, <code>alpha</code>, and <code>lr</code>, are <i>required</i> arguments for all methods.
 The first argument, <code>scores</code>, expects a numpy array of conformal scores. The second argument, <code>alpha</code>, is the desired miscoverage. Finally, the third argument, <code>lr</code>, is the learning rate. (In our paper, this is $\eta$, and in the language of control, this is $K_p$.)
+
+The rest of the arguments listed are required arguments specific to the given method. The argument <code>ahead</code> determines how many steps ahead the prediction is made --- for example, if <code>ahead=4</code>, that means we are making 4-step-ahead predictions (one step is defined by the resolution of the input array <code>scores</code>). The function of <code>*args</code> and <code>**kwargs</code> is to allow methods to take arguments given in a dictionary form.
+
+All methods should <code>return</code> a dictionary of results that includes the method name and the sequence of $q_{t}$. In the quantile example case, the dictionary should look like the following, where <code>qs</code> is a numpy array of quantiles the same length as <code>scores</code>:
+<code>results = {"method": "Quantile", "q" : qs}</code>
+Methods that follow this formatting will be able to be processed automatically by our testing infrastructure.
+
+<h5>Step 2: Creating a config file for the testing infrastructure.</h5>
+We built our own automated testing infrastructure for online conformal.
+The infrastructure spawns a parallel process for every dataset, making it efficient to test one method on all datasets with only one command (the command to run the tests is <code>bash run_tests.sh</code>, and to plot the results is <code>bash make_plots.sh</code>).
+
+The infrastructure works like this.
+<ul>
+    <li>The user defines a file in <code>tests/configs/</code> describing an experiment, i.e., a dataset name and a combination of methods and settings for each method to run. </li>
+    <li>The script <code>tests/run_tests.sh</code> calls <code>tests/base_test.py</code> on every <code>.yaml</code> file in the <code>tests/configs</code> directory.</li>
+</ul>
+
+<b>The entry point for testing is <code>tests/base_test.py</code>.</b> 
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Datasets</h3>
 First, download your dataset and put it in <code>tests/datasets</code>.
