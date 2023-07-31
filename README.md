@@ -92,12 +92,22 @@ The code in <a style="text-decoration:none !important;" href="https://github.com
 Then add your method to the big <code>if/else</code> block starting on <a style="text-decoration:none !important;" href="https://github.com/aangelopoulos/conformal-time-series/blob/e6419ac4345f4a4cad254a76f1f232e815679087/tests/base_test.py#L103">line 103</a>.
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Datasets</h3>
+
+<h5 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Step 1: Load and preprocess the dataset.</h5>
+
 First, download your dataset and put it in <code>tests/datasets</code>.
 Then, edit the <code>tests/datasets.py</code> file to add a name for your dataset and some processing code for it. 
 The dataset should be a <code>pandas</code> dataframe with a valid <code>datetime</code> index (it has to be evenly spaced, and correctly formatted with no invalid values), and at least one column simply titled <code>y</code>. This column represents the target value.
 
 Alternatively, including a column titled <code>forecasts</code> or <code>scorecasts</code> will cause the infrastructure to use these forecasts/scorecasts instead of the ones it would have produced on its own. This is useful if you have defined a good forecaster/scorecaster outside our framework, and you just want to use our code to run conformal on top of that.
 Extra columns can be used to add information for more complex forecasting/scorecasting strategies.
+
+<h5 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Step 2: Create a config file for the dataset.</h5>
+As mentioned above, a config file should be made for each dataset, describing what methods should be run with what parameters.
+The example of <code>tests/configs/AMZN.yaml</code> can be followed.
+
+After executing these two steps, you should be able to run <code>python base_test.py configs/your_dataset.yaml</code> and the results will be computed!
+Alternatively, you can just execute the bash scripts.
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Workarounds for Known Bugs</h3>
 On M1/M2 Mac, in order to use Prophet, follow the instructions at this link: <code>https://github.com/facebook/prophet/issues/2250</code>.
