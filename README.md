@@ -65,23 +65,39 @@ All methods should <code>return</code> a dictionary of results that includes the
 <code>results = {"method": "Quantile", "q" : qs}</code>
 Methods that follow this formatting will be able to be processed automatically by our testing infrastructure.
 
-<h5>Step 2: Creating a config file for the testing infrastructure.</h5>
-We built our own automated testing infrastructure for online conformal.
+<h5>Step 2: Edit the config to include your method.</h5>
+Tl;Dr: go to each config in <code>tests/configs</code>, and add a line under <code>methods:</code> for each method you want to run, along with what learning rates to test. The below example, from <code>tests/configs/AMZN.yaml</code>, will ask the testing suite to run the quantile tracker on the Amazon stock price dataset with five different learning rate choices.
+<pre>
+  Quantile:
+    lrs:
+      - 1
+      - 0.5
+      - 0.1
+      - 0.05
+      - 0
+</pre>
+
+As background, this is part of our little testing infrastructure for online conformal.
 The infrastructure spawns a parallel process for every dataset, making it efficient to test one method on all datasets with only one command (the command to run the tests is <code>bash run_tests.sh</code>, and to plot the results is <code>bash make_plots.sh</code>).
 
 The infrastructure works like this.
 <ul>
     <li>The user defines a file in <code>tests/configs/</code> describing an experiment, i.e., a dataset name and a combination of methods and settings for each method to run. </li>
     <li>The script <code>tests/run_tests.sh</code> calls <code>tests/base_test.py</code> on every <code>.yaml</code> file in the <code>tests/configs</code> directory.</li>
+    <li>The script <code>tests/make_plots.sh</code> calls <code>inset_plot.py</code></li> and <code>base_plots.py</code> to produce the plots in the main text and appendix of our paper, respectively.
 </ul>
 
-<b>The entry point for testing is <code>tests/base_test.py</code>.</b> 
+<h5>Step 3: Edit <code>base_test.py</code> to include your method.</h5>
+The code in <a style="text-decoration:none !important;" href="https://github.com/aangelopoulos/conformal-time-series/blob/e6419ac4345f4a4cad254a76f1f232e815679087/tests/base_test.py#L5C3-L5C3">line 5</a> of <code>base_test.py</code> imports all the methods --- import yours as well.
+Then add your method to the big <code>if/else</code> block starting on <a style="text-decoration:none !important;" href="https://github.com/aangelopoulos/conformal-time-series/blob/e6419ac4345f4a4cad254a76f1f232e815679087/tests/base_test.py#L103">line 103</a>.
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Datasets</h3>
 First, download your dataset and put it in <code>tests/datasets</code>.
 Then, edit the <code>tests/datasets.py</code> file to add a name for your dataset and some processing code for it. 
-Make sure the dataset follows the same standard format as the rest.
-Then ...
+The dataset should be a <code>pandas</code> dataframe with a valid <code>datetime</code> index (it has to be evenly spaced, and correctly formatted with no invalid values), and at least one column simply titled <code>y</code>. This column represents the target value.
+
+Alternatively, including a column titled <code>forecasts</code> or <code>scorecasts</code> will cause the infrastructure to use these forecasts/scorecasts instead of the ones it would have produced on its own. This is useful if you have defined a good forecaster/scorecaster outside our framework, and you just want to use our code to run conformal on top of that.
+Extra columns can be used to add information for more complex forecasting/scorecasting strategies.
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Workarounds for Known Bugs</h3>
 On M1/M2 Mac, in order to use Prophet, follow the instructions at this link: <code>https://github.com/facebook/prophet/issues/2250</code>.
