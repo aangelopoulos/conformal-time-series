@@ -27,13 +27,13 @@ We will describe how to do so below.
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Getting Started</h3>
 <p>
 To reproduce the experiments in our paper, clone this repo and run the following code from the root directory.
-<code>
+<pre>
 conda create --name pid
 pip install -r requirements.txt
 cd tests
 bash run_tests.sh
 bash make_plots.sh
-</code>
+</pre>
 </p>
 
 The one exception is the COVID experiment. For that experiment, you must first run the jupyter notebook in <code>conformal-time-series/tests/datasets/covid-ts-proc/statewide
@@ -44,7 +44,7 @@ It requires the <code>deaths.csv</code> data file, which you can download from <
 The <code>core/methods.py</code> file contains all methods.
 Consider the following header as an example:
 
-<code>
+<pre>
 def quantile(
     scores,
     alpha,
@@ -54,7 +54,7 @@ def quantile(
     *args,
     **kwargs
 ):
-</code>
+</pre>
 
 <h3 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Adding New Datasets</h3>
 First, download your dataset and put it in <code>tests/datasets</code>.
