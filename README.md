@@ -1,7 +1,7 @@
 <h1 align="center" style="margin-bottom:0px; border-bottom:0px; padding-bottom:0px">Conformal PID Control for Time-Series Prediction</h1>
 
 <p align="center">
-    <a style="text-decoration:none !important;" href="" alt="arXiv"><img src="https://img.shields.io/badge/paper-arXiv-red" /></a>
+    <a style="text-decoration:none !important;" href="https://arxiv.org/abs/2307.16895" alt="arXiv"><img src="https://img.shields.io/badge/paper-arXiv-red" /></a>
     <a style="text-decoration:none !important;" href="https://docs.conda.io/en/latest/miniconda.html" alt="package management"> <img src="https://img.shields.io/badge/conda-env-green" /></a>
     <a style="text-decoration:none !important;" href="https://opensource.org/licenses/MIT" alt="License"><img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
 </p>
@@ -14,7 +14,7 @@
 This repository is about producing <b>prediction sets for time series</b>.
 
 The methods here are guaranteed to have coverage for any, possibly <i>adversarial sequence</i>.
-We take a <b>control systems outlook</b> on performing this task, introducing a method called <a style="text-decoration:none !important;" href="" alt="arXiv">Conformal PID Control</a>. 
+We take a <b>control systems outlook</b> on performing this task, introducing a method called <a style="text-decoration:none !important;" href="https://arxiv.org/abs/2307.16895" alt="arXiv">Conformal PID Control</a>. 
 
 Several methods are implemented herein, including online quantile regression (quantile tracking/P control), adaptive conformal prediction, and more!
 </p>
